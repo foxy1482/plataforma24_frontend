@@ -1,0 +1,33 @@
+{
+    "roles": [
+        {"id": 1, "nombre": "alumno"},
+        {"id": 2, "nombre": "profesor"},
+        {"id": 3, "nombre": "autoridad"},
+        {"id": 4, "nombre": "adminAlumno"},
+        {"id": 5, "nombre": "adminProfesor"},
+        {"id": 6, "nombre": "admin"}
+    ],
+    "cursos": [
+        {"id": 1, "year": "5", "division": "6", "turno": "manana", "aula": "Gabinete 4", "ciclo_lectivo": 2026},
+        {"id": 2, "year": "5", "division": "7", "turno": "noche", "aula": "19", "ciclo_lectivo": 2026}
+    ],
+    "usuarios": [
+        {"numero_legajo": 2, "nombre_usuario": "sonja.ur", "email": "sonja@mail.com", "num_rol": 5, "num_curso": null},
+        {"numero_legajo": 1, "nombre_usuario": "palavecinoGay", "email": "elpaladevdp@gmail.com", "num_rol": 4, "num_curso": 1}
+    ],
+    "datos_personales": [
+        {"num_legajo": 1, "nombre": "Tomas", "apellido": "Palavecino", "dni": 67676767, "direccion": "Arregui 3198, CABA", "fecha_nacimiento": "2008-03-09"}
+    ],
+    "materias": [
+        {"id": 1, "nombre": "Laboratorio de Programación Orientada a Objetos", "num_profesor": 2, "num_curso": 1}
+    ],
+    "materiales": [
+        {"id": 1, "titulo": "AVISO", "descripcion": "Ver nota al final del script sobre este registro.", "publicada_desde": "2026-05-30T12:17:41.191", "num_materia": 1}
+    ],
+    "tareas": [
+        {"id": 1, "titulo": "TP Viernes", "descripcion": "Responder el cuestionario adjunto", "fecha_entrega": "2026-04-18T15:20:00.762", "publicada_desde": "2026-04-14T13:50:00.762", "num_materia": 1}
+    ],
+    "entregas": [
+        {"id": 1, "num_tarea": 1, "num_legajo": 1, "fecha_entrega": "2026-05-30T13:22:55.803", "calificacion": "10 (diez)"}
+    ]
+}

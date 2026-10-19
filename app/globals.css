@@ -1,26 +1,44 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --color-primary: #043AC2;
+    --font-libertinus: 'Libertinus Serif';
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@font-face {
+    font-family: 'Libertinus Serif';
+    font-weight: 600;
+    font-display: swap;
+    src: url(/fonts/libertinus-semibolditalic.woff2);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+    font-family: 'Libertinus Serif';
+    font-weight: 600;
+    font-display: swap;
+    src: url(/fonts/libertinus-semibold.woff2);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@font-face {
+    font-family: 'Libertinus Serif';
+    font-weight: 800;
+    font-style: italic;
+    font-display: swap;
+    src: url(/fonts/libertinus-bolditalic.woff2);
+}
+
+@font-face {
+    font-family: 'Libertinus Serif';
+    font-display: swap;
+    font-weight: 800;
+    src: url(/fonts/libertinus-bold.woff2);
+}
+
+@font-face {
+    font-family: 'Libertinus Serif';
+    font-display: swap;
+    font-weight: 400;
+    src: url(/fonts/libertinus.woff2);
 }
