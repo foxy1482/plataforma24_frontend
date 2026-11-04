@@ -22,6 +22,7 @@ import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
 import { fechaNacimientoTexto, sexoTexto } from "@/app/lib/datos-personales";
 import { edadDe } from "@/app/lib/format";
+import { AVISO_LEGAJO_NO_RENOVADO, prefijoDeLegajo, prefijoNuevoDeLegajo } from "@/app/lib/legajo";
 import { cursoLargo, inicialesDeNombre } from "@/app/lib/sesion";
 import { cargarUsuario, type DetalleUsuario } from "./cargar-usuario";
 
@@ -109,6 +110,9 @@ export default function UsuarioView() {
         cambios.nombreUsuario = nombreUsuario.trim();
     }
     const hayCambios = Object.keys(cambios).length > 0;
+    // Prefijo del legajo que quedará si se guarda el rol elegido (null: el legajo no cambia).
+    const prefijoNuevo =
+        cambios.idRol === undefined ? null : prefijoNuevoDeLegajo(usuario.numeroLegajo, roles, cambios.idRol);
 
     const guardarCuenta = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -119,17 +123,31 @@ export default function UsuarioView() {
             setErrorCuenta("El correo y el nombre de usuario no pueden quedar vacíos.");
             return;
         }
-        if (cambios.idRol !== undefined && esRolAdministrativo(cambios.idRol)) {
-            const ok = window.confirm(
-                `Vas a asignar el rol "${nombreRol(cambios.idRol)}" a ${nombre}. Este rol permite ver y modificar datos de otras personas. ¿Confirmás el cambio?`
-            );
-            if (!ok) return;
+        if (cambios.idRol !== undefined) {
+            const avisos: string[] = [`Vas a asignar el rol "${nombreRol(cambios.idRol)}" a ${nombre}.`];
+            if (esRolAdministrativo(cambios.idRol)) {
+                avisos.push("Este rol permite ver y modificar datos de otras personas.");
+            }
+            if (prefijoNuevo) {
+                avisos.push(
+                    `Su legajo cambiará de ${usuario.numeroLegajo} a uno nuevo con prefijo ${prefijoNuevo}; el número anterior no se reutiliza.`
+                );
+            }
+            if (avisos.length > 1 || esRolAdministrativo(cambios.idRol)) {
+                if (!window.confirm(`${avisos.join(" ")} ¿Confirmás el cambio?`)) return;
+            }
         }
         setGuardando(true);
         try {
             await api.usuarios.modificar(usuario.id, cambios);
-            aplicar({ ...detalle, usuario: await api.usuarios.porLegajo(usuario.id) });
-            setOkCuenta(true);
+            // Se vuelve a leer el usuario: el legajo lo renueva la base al cambiar el rol.
+            const actualizado = await api.usuarios.porLegajo(usuario.id);
+            aplicar({ ...detalle, usuario: actualizado });
+            if (cambios.idRol !== undefined && prefijoNuevo && prefijoDeLegajo(actualizado.numeroLegajo) !== prefijoNuevo) {
+                setErrorCuenta(AVISO_LEGAJO_NO_RENOVADO);
+            } else {
+                setOkCuenta(true);
+            }
         } catch (err) {
             registrarError(err);
             setErrorCuenta(
@@ -216,6 +234,12 @@ export default function UsuarioView() {
                                     </option>
                                 ))}
                             </select>
+                            {prefijoNuevo && (
+                                <p role="status" className="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                                    Al guardar, el legajo pasará del prefijo {prefijoDeLegajo(usuario.numeroLegajo)} a{" "}
+                                    {prefijoNuevo} (se le asigna un número nuevo).
+                                </p>
+                            )}
                             {esYo && (
                                 <p id={`${prefijo}-rol-ayuda`} className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                                     No podés cambiar tu propio rol: te quedarías sin acceso. Pedíselo a otra autoridad.
@@ -274,8 +298,9 @@ export default function UsuarioView() {
                     </div>
 
                     <p className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-                        El número de legajo ({usuario.numeroLegajo}) se asignó al crear la cuenta y puede
-                        conservar el prefijo del rol anterior después de un cambio de rol.
+                        El legajo ({usuario.numeroLegajo}) acompaña al rol: si el rol nuevo tiene otro prefijo
+                        (ALU, PRO, PRE, AUT, ADM), el sistema le asigna un legajo nuevo. Alumno y Admin alumno, o
+                        Profesor y Admin profesor, comparten prefijo y conservan el suyo.
                     </p>
 
                     {errorCuenta && (

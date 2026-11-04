@@ -7,6 +7,7 @@ import { notificar } from "@/app/components/avisos";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
 import { normalizar } from "@/app/lib/format";
+import { AVISO_LEGAJO_NO_RENOVADO, prefijoDeLegajo, prefijoNuevoDeLegajo } from "@/app/lib/legajo";
 import { cursoLargo, inicialesDeNombre, ordenarCursos } from "@/app/lib/sesion";
 import type { Curso, Rol, Usuario } from "@/app/lib/types";
 import { Avatar, BTN_G, BTN_R, CARD, Cargando, ErrorPanel, Select, Vacio } from "@/app/components/ui";
@@ -67,7 +68,25 @@ export default function UsuariosView() {
         actualizar(u.id, cambios);
         try {
             await api.usuarios.modificar(u.id, cambios);
-            setAviso({ texto: "Cambios guardados.", ok: true });
+            if (cambios.idRol === undefined) {
+                setAviso({ texto: "Cambios guardados.", ok: true });
+                return;
+            }
+            // El legajo acompaña al rol (lo renueva la base): se vuelve a leer para mostrar el nuevo.
+            const actualizado = await api.usuarios.porLegajo(u.id);
+            actualizar(u.id, { numeroLegajo: actualizado.numeroLegajo, idRol: actualizado.idRol });
+            const esperado = prefijoNuevoDeLegajo(u.numeroLegajo, datos?.roles ?? [], cambios.idRol);
+            if (esperado && prefijoDeLegajo(actualizado.numeroLegajo) !== esperado) {
+                setAviso({ texto: AVISO_LEGAJO_NO_RENOVADO, ok: false });
+            } else {
+                setAviso({
+                    texto:
+                        actualizado.numeroLegajo !== u.numeroLegajo
+                            ? `Cambios guardados. Su legajo ahora es ${actualizado.numeroLegajo}.`
+                            : "Cambios guardados.",
+                    ok: true,
+                });
+            }
         } catch (e) {
             registrarError(e);
             actualizar(u.id, anterior);
@@ -80,13 +99,20 @@ export default function UsuariosView() {
     };
 
     const cambiarRol = (u: Usuario, idRol: number) => {
+        const nuevoPrefijo = prefijoNuevoDeLegajo(u.numeroLegajo, datos?.roles ?? [], idRol);
+        const avisoLegajo = nuevoPrefijo
+            ? ` Su legajo ${u.numeroLegajo} pasará a uno nuevo con prefijo ${nuevoPrefijo} (el número anterior no se reutiliza).`
+            : "";
         if (idRol >= 3 && idRol <= 7) {
             const nombreRol = datos?.roles.find((r) => r.id === idRol)?.nombre ?? `rol ${idRol}`;
             const nombre = u.nombreUsuario ?? u.nombre ?? u.email;
             const ok = window.confirm(
-                `Vas a asignar el rol "${nombreRol}" a ${nombre}. Este rol permite ver y modificar datos de otras personas. ¿Confirmás el cambio?`
+                `Vas a asignar el rol "${nombreRol}" a ${nombre}. Este rol permite ver y modificar datos de otras personas.${avisoLegajo} ¿Confirmás el cambio?`
             );
             if (!ok) return;
+        } else if (nuevoPrefijo) {
+            const nombre = u.nombreUsuario ?? u.nombre ?? u.email;
+            if (!window.confirm(`Vas a cambiar el rol de ${nombre}.${avisoLegajo} ¿Confirmás el cambio?`)) return;
         }
         guardar(u, { idRol });
     };
