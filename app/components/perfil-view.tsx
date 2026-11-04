@@ -4,10 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { edadDe, fechaCorta } from "@/app/lib/format";
+import { fechaNacimientoTexto, sexoTexto } from "@/app/lib/datos-personales";
+import { edadDe } from "@/app/lib/format";
 import { cargarSesion, cursoLargo, type Papel, type Sesion } from "@/app/lib/sesion";
 import type { Curso, DatosPersonales } from "@/app/lib/types";
-import { Avatar, CARD, Cargando, Chip, ErrorPanel, LABEL } from "@/app/components/ui";
+import DatosPersonalesForm from "@/app/components/datos-personales-form";
+import { Avatar, BTN_G, BTN_P, CARD, Cargando, Chip, ErrorPanel, LABEL } from "@/app/components/ui";
 
 const ETIQUETA_PAPEL: Record<Papel, string> = {
     alumno: "Alumno",
@@ -16,14 +18,6 @@ const ETIQUETA_PAPEL: Record<Papel, string> = {
     directivo: "Directivo",
     otro: "Usuario",
 };
-
-// La API serializa el sexo como número (0, 1) o como texto, según el endpoint.
-function sexoTexto(sexo: unknown) {
-    const s = String(sexo ?? "").toLowerCase();
-    if (s === "0" || s === "femenino") return "Femenino";
-    if (s === "1" || s === "masculino") return "Masculino";
-    return "—";
-}
 
 interface Perfil {
     sesion: Sesion;
@@ -73,6 +67,7 @@ export default function PerfilView() {
     const router = useRouter();
     const [perfil, setPerfil] = useState<Perfil | null>(null);
     const [error, setError] = useState(false);
+    const [editando, setEditando] = useState(false);
 
     const cargar = useCallback(() => {
         cargarPerfil()
@@ -114,6 +109,8 @@ export default function PerfilView() {
     const { sesion, datos, curso } = perfil;
     const { usuario } = sesion;
     const edad = edadDe(datos?.fechaNacimiento);
+    // Solo preceptores y autoridades pueden eliminar datos personales (lo exige el backend).
+    const puedeEliminar = sesion.papel === "preceptor" || sesion.papel === "directivo";
 
     return (
         <div className="mx-auto max-w-4xl space-y-5">
@@ -144,11 +141,34 @@ export default function PerfilView() {
                 </div>
             </div>
 
-            {!datos && (
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                    Todavía no hay datos personales cargados para tu usuario. Cuando la administración
-                    los complete van a aparecer acá.
-                </p>
+            {editando ? (
+                <DatosPersonalesForm
+                    idUsuario={usuario.id}
+                    datos={datos}
+                    puedeEliminar={puedeEliminar}
+                    titulo={datos ? "Editar mis datos" : "Completar mis datos"}
+                    onCancelar={() => setEditando(false)}
+                    onGuardado={() => {
+                        setEditando(false);
+                        cargar();
+                    }}
+                />
+            ) : (
+                <div className="flex flex-wrap items-center gap-3">
+                    {!datos && (
+                        <p className="flex-[1_1_20rem] text-sm text-neutral-500 dark:text-neutral-400">
+                            Todavía no cargaste tus datos personales. Completalos para que figuren en tu perfil
+                            y en los listados de la escuela.
+                        </p>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => setEditando(true)}
+                        className={datos ? BTN_G : BTN_P}
+                    >
+                        {datos ? "Editar mis datos" : "Completar mis datos"}
+                    </button>
+                </div>
             )}
 
             <div className="flex flex-wrap items-start gap-5">
@@ -160,7 +180,7 @@ export default function PerfilView() {
                         [
                             "Fecha de nacimiento",
                             datos?.fechaNacimiento
-                                ? `${fechaCorta(datos.fechaNacimiento)}${edad !== null ? ` (${edad} años)` : ""}`
+                                ? `${fechaNacimientoTexto(datos.fechaNacimiento)}${edad !== null ? ` (${edad} años)` : ""}`
                                 : "",
                         ],
                         ["Sexo", datos ? sexoTexto(datos.sexo) : ""],

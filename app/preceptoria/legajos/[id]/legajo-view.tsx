@@ -3,8 +3,16 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ExclamationTriangleIcon, PrinterIcon } from "@heroicons/react/24/outline";
-import { ApiError, registrarError } from "@/app/lib/apiClient";
+import {
+    ExclamationTriangleIcon,
+    PencilSquareIcon,
+    PlusIcon,
+    PrinterIcon,
+    TrashIcon,
+} from "@heroicons/react/24/outline";
+import * as api from "@/app/lib/apiClient";
+import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
+import { notificar } from "@/app/components/avisos";
 import {
     coma,
     edadDe,
@@ -13,10 +21,13 @@ import {
     numero,
     ordinal,
 } from "@/app/lib/format";
+import { fechaNacimientoTexto, sexoTexto } from "@/app/lib/datos-personales";
 import { cursoLargo, inicialesDeNombre } from "@/app/lib/sesion";
+import DatosPersonalesForm from "@/app/components/datos-personales-form";
 import {
     Avatar,
     BTN_G,
+    BTN_R,
     CARD,
     Cargando,
     Chip,
@@ -27,8 +38,6 @@ import {
 import { datosPreceptoria } from "../../datos";
 import { cargarLegajo, type Legajo } from "./cargar-legajo";
 
-const SEXOS: Record<string, string> = { "0": "Femenino", "1": "Masculino" };
-
 export default function LegajoView() {
     const router = useRouter();
     const { id } = useParams<{ id: string }>();
@@ -38,6 +47,8 @@ export default function LegajoView() {
     const [cargado, setCargado] = useState<{ id: number; valor: Legajo } | null>(null);
     const legajo = cargado?.id === idAlumno ? cargado.valor : null;
     const [error, setError] = useState(false);
+    const [editandoDatos, setEditandoDatos] = useState(false);
+    const [eliminando, setEliminando] = useState(false);
 
     const cargar = useCallback(() => {
         datosPreceptoria()
@@ -57,6 +68,30 @@ export default function LegajoView() {
         cargar();
     }, [cargar]);
 
+    const eliminarDatos = async () => {
+        if (
+            !window.confirm(
+                "¿Eliminar los datos personales de este alumno? Se pierden el DNI, la fecha de nacimiento, el celular y el domicilio. Esta acción no se puede deshacer."
+            )
+        ) {
+            return;
+        }
+        setEliminando(true);
+        try {
+            await api.datos.eliminar(idAlumno);
+            cargar();
+        } catch (e) {
+            registrarError(e);
+            notificar(
+                e instanceof ApiError && e.status === 403
+                    ? "Tu usuario no tiene permiso para eliminar estos datos."
+                    : mensajeDeError(e, "No se pudieron eliminar los datos personales.")
+            );
+        } finally {
+            setEliminando(false);
+        }
+    };
+
     if (error) return <ErrorPanel mensaje="No encontramos ese legajo." onReintentar={cargar} />;
     if (!legajo) {
         return (
@@ -74,6 +109,7 @@ export default function LegajoView() {
         legajo.anuales === null ? null : Math.max(0, INASISTENCIAS_PERMITIDAS - legajo.anuales);
     const enRiesgo = restantes !== null && restantes <= 8;
     const edad = edadDe(datos?.fechaNacimiento);
+    const sinDatos = !datos;
 
     return (
         <div className="mx-auto max-w-5xl space-y-4">
@@ -145,14 +181,64 @@ export default function LegajoView() {
             )}
 
             <div className="flex flex-wrap items-start gap-5">
+                {editandoDatos ? (
+                    <div className="min-w-0 flex-[1_1_28rem]">
+                        <DatosPersonalesForm
+                            idUsuario={idAlumno}
+                            datos={datos}
+                            puedeEliminar
+                            onCancelar={() => setEditandoDatos(false)}
+                            onGuardado={() => {
+                                setEditandoDatos(false);
+                                cargar();
+                            }}
+                        />
+                    </div>
+                ) : (
                 <section className={`${CARD} min-w-0 flex-[1_1_20rem] p-5`}>
-                    <h2 className="font-libertinus text-xl font-bold text-neutral-900 dark:text-neutral-100">
-                        Datos personales
-                    </h2>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h2 className="font-libertinus text-xl font-bold text-neutral-900 dark:text-neutral-100">
+                            Datos personales
+                        </h2>
+                        {!legajo.datosRestringidos && (
+                            <div className="flex gap-2 print:hidden">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditandoDatos(true)}
+                                    className={`${BTN_G} h-9 px-3`}
+                                >
+                                    {sinDatos ? (
+                                        <PlusIcon className="h-4 w-4" />
+                                    ) : (
+                                        <PencilSquareIcon className="h-4 w-4" />
+                                    )}
+                                    {sinDatos ? "Cargar datos" : "Editar"}
+                                </button>
+                                {!sinDatos && (
+                                    <button
+                                        type="button"
+                                        onClick={eliminarDatos}
+                                        disabled={eliminando}
+                                        aria-label="Eliminar datos personales"
+                                        className={`${BTN_R} h-9 px-3`}
+                                    >
+                                        <TrashIcon className="h-4 w-4" />
+                                        {eliminando ? "Eliminando…" : "Eliminar"}
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
                     {legajo.datosRestringidos && (
                         <p className="mt-1.5 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-                            Tu rol no tiene acceso a los datos personales completos (DNI, fecha de
+                            Tu usuario no tiene permiso para ver los datos personales completos (DNI, fecha de
                             nacimiento, celular, domicilio).
+                        </p>
+                    )}
+                    {sinDatos && !legajo.datosRestringidos && (
+                        <p className="mt-1.5 rounded-lg bg-amber-50 p-2.5 text-xs leading-relaxed text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+                            Este alumno todavía no tiene datos personales cargados. El nombre que se muestra sale de su
+                            usuario o de los boletines.
                         </p>
                     )}
                     <dl className="mt-3 space-y-2.5 text-sm">
@@ -162,10 +248,10 @@ export default function LegajoView() {
                             [
                                 "Fecha de nacimiento",
                                 datos?.fechaNacimiento
-                                    ? `${fechaCorta(datos.fechaNacimiento)}${edad !== null ? ` (${edad} años)` : ""}`
+                                    ? `${fechaNacimientoTexto(datos.fechaNacimiento)}${edad !== null ? ` (${edad} años)` : ""}`
                                     : "—",
                             ],
-                            ["Sexo", datos?.sexo !== undefined ? (SEXOS[String(datos.sexo)] ?? "—") : "—"],
+                            ["Sexo", datos ? sexoTexto(datos.sexo) : "—"],
                             ["Celular", datos?.telefonoCelular ? String(datos.telefonoCelular) : "—"],
                             ["Domicilio", datos?.direccion || "—"],
                             ["Correo", legajo.usuario.email || "—"],
@@ -181,6 +267,7 @@ export default function LegajoView() {
                         ))}
                     </dl>
                 </section>
+                )}
 
                 <div className="min-w-0 flex-[999_1_26rem] space-y-5">
                     <section className={`${CARD} p-5`}>

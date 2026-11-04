@@ -13,6 +13,7 @@ import {
     Avatar,
     CARD,
     Cargando,
+    Chip,
     ErrorPanel,
     INPUT,
     LABEL,
@@ -92,6 +93,7 @@ export default function LegajosView() {
     );
 
     const conLegajo = (alumnos ?? []).some((a) => a.numeroLegajo);
+    const sinDatos = (alumnos ?? []).filter((a) => a.sinDatos).length;
 
     return (
         <div className="mx-auto max-w-4xl space-y-5">
@@ -102,6 +104,7 @@ export default function LegajosView() {
                     </h1>
                     <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
                         {nombreCurso(curso)} · {alumnos?.length ?? "…"} alumnos
+                        {sinDatos > 0 && ` · ${sinDatos} sin datos personales`}
                     </p>
                 </div>
                 <label className="relative block w-full sm:w-64">
@@ -167,6 +170,7 @@ export default function LegajosView() {
                                             <span className="font-medium text-neutral-900 dark:text-neutral-100">
                                                 {a.apellido}, {a.nombre}
                                             </span>
+                                            {a.sinDatos && <Chip tono="ambar">Sin datos personales</Chip>}
                                         </Link>
                                     </td>
                                     {conLegajo && (
@@ -175,7 +179,16 @@ export default function LegajosView() {
                                         </td>
                                     )}
                                     <td className="hidden px-4 py-2.5 text-neutral-600 sm:table-cell dark:text-neutral-300">
-                                        {a.dni || "—"}
+                                        {a.sinDatos ? (
+                                            <Link
+                                                href={`/preceptoria/legajos/${a.idUsuario}`}
+                                                className="text-xs font-semibold text-primary hover:underline"
+                                            >
+                                                Cargar datos
+                                            </Link>
+                                        ) : (
+                                            a.dni || "—"
+                                        )}
                                     </td>
                                     <td className="hidden px-4 py-2.5 text-neutral-600 sm:table-cell dark:text-neutral-300">
                                         {a.telefonoCelular || "—"}
