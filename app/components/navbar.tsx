@@ -6,11 +6,24 @@ import { motion } from "framer-motion";
 import { AcademicCapIcon } from "@heroicons/react/24/solid";
 import ThemeToggle from "@/app/components/themetoggle";
 
+const RUTAS_PANEL = [
+    "/dashboard",
+    "/materias",
+    "/tareas",
+    "/calificaciones",
+    "/cursos",
+    "/avisos",
+    "/docente",
+    "/preceptoria",
+    "/admin",
+];
+
 export default function Navbar() {
     const pathname = usePathname();
 
-    // Oculta esta barra global si estamos en el dashboard
-    if (pathname?.startsWith("/dashboard")) {
+    // Oculta esta barra global en el panel privado (tiene su propio menú)
+    const enPanel = RUTAS_PANEL.some((r) => pathname === r || pathname?.startsWith(`${r}/`));
+    if (enPanel) {
         return null;
     }
     return (
@@ -37,10 +50,10 @@ export default function Navbar() {
                             Inicio
                         </Link>
                         <Link 
-                            href="/cursos" 
+                            href="/login"
                             className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium"
                         >
-                            Cursos
+                            Ingresar
                         </Link>
             
                         <ThemeToggle />

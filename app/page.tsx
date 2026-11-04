@@ -4,8 +4,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRedirigirSiHaySesion } from "./lib/usar-sesion-activa";
 
 export default function Home() {
+    const isChecking = useRedirigirSiHaySesion();
+
     const images = [
         "/img/escuela1.jpeg",
         "/img/escuela2.jpg",
@@ -20,6 +23,10 @@ export default function Home() {
         }, 5000);
         return () => clearInterval(interval);
     }, [images.length]);
+
+    if (isChecking) {
+        return null; // Evita mostrar la vista de inicio mientras valida la sesión
+    }
 
     return (
         <div className="relative flex-1 flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-gray-50 px-4 transition-colors duration-300 dark:from-gray-950 dark:to-gray-900">
@@ -42,11 +49,9 @@ export default function Home() {
                         />
                     </motion.div>
                 ))}
-                {/* Capa oscura superpuesta para dar mayor legibilidad al texto */}
                 <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-[2px]" />
             </div>
 
-            {/* Contenido principal centrado */}
             <div className="relative z-10 max-w-4xl mx-auto text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -74,7 +79,7 @@ export default function Home() {
                                 Iniciar Sesión
                             </button>
                         </Link>
-                        <Link href="/register">
+                        <Link href="/registro">
                             <button className="w-full sm:w-auto bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/30 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                                 Registrarse
                             </button>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/app/components/navbar";
+import { Avisos } from "@/app/components/avisos";
 import { ThemeProvider } from "@/app/components/themeprovider";
 
 export const metadata: Metadata = {
@@ -22,9 +23,11 @@ export default function RootLayout({
                     enableSystem
                 >
                     <Navbar />
-                    <main className="flex-grow flex flex-col">
+                    {/* Un <div>, no <main>: los paneles ya definen su propio <main> y no puede haber dos. */}
+                    <div className="flex-grow flex flex-col">
                         {children}
-                    </main>
+                    </div>
+                    <Avisos />
                 </ThemeProvider>
             </body>
         </html>
