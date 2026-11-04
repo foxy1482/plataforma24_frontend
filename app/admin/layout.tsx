@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <PanelLayout
             titulo="Administración"
             acento="violeta"
-            papeles={["directivo"]}
+            papeles={[]} // sin papeles: solo entran los administradores (ver puedeEntrar)
             subtitulo="Autoridad"
             perfilHref="/admin/perfil"
             grupos={grupos}

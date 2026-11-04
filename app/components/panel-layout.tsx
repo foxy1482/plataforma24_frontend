@@ -11,7 +11,7 @@ import {
 import ThemeToggle from "@/app/components/themetoggle";
 import { Avatar, ErrorPanel, LABEL } from "@/app/components/ui";
 import * as api from "@/app/lib/apiClient";
-import { cargarSesion, rutaDePapel, type Papel, type Sesion } from "@/app/lib/sesion";
+import { cargarSesion, puedeEntrar, rutaDePapel, type Papel, type Sesion } from "@/app/lib/sesion";
 
 export interface PanelLink {
     name: string;
@@ -64,7 +64,7 @@ export default function PanelLayout({
     useEffect(() => {
         cargarSesion()
             .then((s) => {
-                if (papeles.includes(s.papel)) setSesion(s);
+                if (puedeEntrar(s, papeles)) setSesion(s);
                 else router.replace(rutaDePapel(s.papel));
             })
             .catch((e) => {
@@ -123,7 +123,7 @@ export default function PanelLayout({
                     )}
 
                     <div className="ml-auto flex items-center gap-2">
-                        {verComoAlumno && (
+                        {verComoAlumno && sesion?.esAdmin && (
                             <Link
                                 href="/dashboard"
                                 className="hidden h-9 items-center rounded-xl border border-neutral-300 px-3 text-xs font-semibold text-neutral-600 hover:border-neutral-400 sm:inline-flex dark:border-neutral-600 dark:text-neutral-300"

@@ -14,6 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import ThemeToggle from "@/app/components/themetoggle";
 import { ErrorPanel } from "@/app/components/ui";
+import { esAdminRol, papelDe, puedeEntrar, rutaDePapel } from "@/app/lib/sesion";
 import { ApiError, auth } from "@/app/lib/apiClient";
 
 // "Inicio" solo se marca en /dashboard exacto; el resto también en sus subrutas
@@ -29,11 +30,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [sesionOk, setSesionOk] = useState(false);
     const [falloSesion, setFalloSesion] = useState(false);
 
-    // Cualquier usuario con sesión válida puede entrar (el docente usa "Ver como alumno"),
-    // pero sin token válido no se monta nada: antes cada página lo revisaba por su cuenta.
+    // Este es el panel del alumno: cada rol se queda en el suyo (docente en /docente, preceptor y
+    // autoridad en /preceptoria) y solo los administradores pueden entrar a todos. Sin token válido
+    // no se monta nada: antes cada página lo revisaba por su cuenta.
     useEffect(() => {
         auth.getProfile()
-            .then(() => setSesionOk(true))
+            .then((usuario) => {
+                const sesion = { papel: papelDe(usuario.idRol, usuario.rol ?? undefined), esAdmin: esAdminRol(usuario.idRol) };
+                if (puedeEntrar(sesion, ["alumno"])) setSesionOk(true);
+                else router.replace(rutaDePapel(sesion.papel));
+            })
             .catch((e) => {
                 if (e instanceof ApiError && e.status !== 401) setFalloSesion(true);
                 else router.replace("/login");

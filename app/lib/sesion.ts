@@ -10,6 +10,21 @@ export interface Sesion {
     papel: Papel;
     nombre: string; // "Gustavo Ferreyra"
     iniciales: string;
+    // Administrador: puede entrar a todos los paneles (el resto queda en el de su rol).
+    esAdmin: boolean;
+}
+
+// Roles con acceso a todos los paneles: AdminAlumno (4), AdminProfesor (5) y Admin (6).
+// La Autoridad (3) es personal directivo y se queda en preceptoría, igual que el preceptor.
+const ROLES_ADMIN = [4, 5, 6];
+
+export function esAdminRol(idRol: number) {
+    return ROLES_ADMIN.includes(idRol);
+}
+
+// ¿Puede esta sesión estar en un panel pensado para estos papeles?
+export function puedeEntrar(sesion: Pick<Sesion, "papel" | "esAdmin">, papeles: Papel[]) {
+    return sesion.esAdmin || papeles.includes(sesion.papel);
 }
 
 const PAPEL_POR_ROL: Record<number, Papel> = {
@@ -22,7 +37,7 @@ const PAPEL_POR_ROL: Record<number, Papel> = {
     7: "preceptor",
 };
 
-function papelDe(idRol: number, nombreRol?: string): Papel {
+export function papelDe(idRol: number, nombreRol?: string): Papel {
     if (PAPEL_POR_ROL[idRol]) return PAPEL_POR_ROL[idRol];
     const n = normalizar(nombreRol ?? "");
     if (n.includes("alumn") || n.includes("estudiante")) return "alumno";
@@ -60,6 +75,7 @@ export async function cargarSesion(): Promise<Sesion> {
         papel: papelDe(usuario.idRol, usuario.rol ?? undefined),
         nombre,
         iniciales: inicialesDeNombre(nombre),
+        esAdmin: esAdminRol(usuario.idRol),
     };
 }
 

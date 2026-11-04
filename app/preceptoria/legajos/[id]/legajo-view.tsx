@@ -54,7 +54,7 @@ export default function LegajoView() {
     const cargar = useCallback(() => {
         datosPreceptoria()
             .then((d) => {
-                setEsAutoridad(d.sesion.papel === "directivo");
+                setEsAutoridad(d.sesion.esAdmin);
                 return cargarLegajo(idAlumno, d.ciclo);
             })
             .then((valor) => setCargado({ id: idAlumno, valor }))
