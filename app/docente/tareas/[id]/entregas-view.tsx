@@ -96,12 +96,11 @@ export default function EntregasView() {
                 // entregado más de una vez), así el listado coincide con el contador "sin corregir".
                 const filasEntrega = t.entregas.map((e) => {
                     const alumno = alumnos.find((a) => a.idUsuario === e.idUsuario) ?? {
-                        id: e.idUsuario,
                         idUsuario: e.idUsuario,
                         nombre: "Alumno",
                         apellido: `#${e.idUsuario}`,
                         dni: 0,
-                        telefonoCelular: "",
+                        telefonoCelular: null,
                         direccion: "",
                         fechaNacimiento: "",
                     };

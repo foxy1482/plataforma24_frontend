@@ -45,18 +45,27 @@ export interface Curso {
     cicloLectivo: number;
 }
 
-export interface DatosPersonales {
-    id: number;
-    idUsuario: number;
-    numeroLegajo?: string; // lo completa alumnosDeCurso() desde el usuario
+// Enum Sexo del backend, serializado por posición: 0 Masculino, 1 Femenino.
+export type Sexo = 0 | 1;
+
+// Campos editables de los datos personales (DatosPersonalesDTO del backend).
+export interface DatosPersonalesPayload {
     nombre: string;
     apellido: string;
     dni: number;
-    telefonoCelular: number | string | null;
+    telefonoCelular?: number | null;
     direccion: string;
-    fechaNacimiento: string;
+    fechaNacimiento: string; // "yyyy-MM-dd"
+    sexo?: Sexo | null;
+}
+
+export interface DatosPersonales extends Omit<DatosPersonalesPayload, "telefonoCelular"> {
+    idUsuario: number;
+    numeroLegajo?: string; // lo completa alumnosDeCurso() desde el usuario
+    telefonoCelular: number | null;
     idFotoArchivo?: number | null;
-    sexo?: string;
+    // true cuando el usuario todavía no cargó sus datos y el nombre sale de su alias (alumnosDeCurso)
+    sinDatos?: boolean;
 }
 
 export interface Material {

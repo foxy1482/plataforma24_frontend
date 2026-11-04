@@ -19,17 +19,17 @@ export async function alumnosDeCurso(idCurso: number): Promise<DatosPersonales[]
             const d = personales.get(u.id);
             const [nombre, ...resto] = (u.nombreUsuario ?? u.nombre ?? u.email).split(".");
             return {
-                id: u.id,
                 idUsuario: u.id,
                 numeroLegajo: u.numeroLegajo,
                 nombre: d?.nombre ?? capitalizar(nombre),
                 apellido: d?.apellido ?? capitalizar(resto.join(" ")),
                 dni: d?.dni ?? 0,
-                telefonoCelular: d?.telefonoCelular ?? "",
+                telefonoCelular: d?.telefonoCelular ?? null,
                 direccion: d?.direccion ?? "",
                 fechaNacimiento: d?.fechaNacimiento ?? "",
                 idFotoArchivo: d?.idFotoArchivo,
                 sexo: d?.sexo,
+                sinDatos: !d,
             };
         });
 }

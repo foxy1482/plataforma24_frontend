@@ -6,6 +6,7 @@ import type {
     BoletinResumen,
     Curso,
     DatosPersonales,
+    DatosPersonalesPayload,
     Entrega,
     EstadoAsistencia,
     EstadoBoletin,
@@ -101,7 +102,7 @@ type QueryValue = string | number | boolean | null | undefined;
 interface RequestOptions extends Omit<RequestInit, "body"> {
     params?: Record<string, QueryValue>;
     // Un objeto/array se serializa solo a JSON; FormData/Blob/string pasan tal cual.
-    body?: BodyInit | Record<string, unknown> | unknown[] | null;
+    body?: BodyInit | object | null;
 }
 
 function buildUrl(endpoint: string, params?: Record<string, QueryValue>) {
@@ -300,8 +301,11 @@ export const datos = {
     // Join con los datos personales de todos los alumnos de un curso
     alumnosDeCurso: (numCurso: number) =>
         get<Lista<DatosPersonales>>(`/datos/alumnos/curso/${numCurso}`),
-    crear: (data: Record<string, unknown>) => post<DatosPersonales>("/datos/", data),
-    modificar: (legajo: number | string, data: Record<string, unknown>) =>
+    crear: (data: DatosPersonalesPayload & { idUsuario: number }) =>
+        post<DatosPersonales>("/datos/", data),
+    // El backend responde 204: para ver el resultado hay que volver a pedir los datos.
+    // Solo modifica los campos con valor; no hay forma de vaciar el celular ni el sexo.
+    modificar: (legajo: number | string, data: Partial<DatosPersonalesPayload>) =>
         patch<DatosPersonales>(`/datos/usuario/${legajo}`, data),
     eliminar: (legajo: number | string) => del<null>(`/datos/usuario/${legajo}`),
 };

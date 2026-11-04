@@ -140,7 +140,7 @@ export default function ListaView() {
             if (base.length === 0) {
                 const alumnos = await alumnosDeCurso(curso.id);
                 base = alumnos.map((a) => ({
-                    id: a.id,
+                    id: a.idUsuario,
                     idAlumno: a.idUsuario,
                     numeroLegajo: "",
                     apellido: a.apellido,
