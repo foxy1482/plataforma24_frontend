@@ -42,3 +42,5 @@ export function listarPeriodos(ciclo: number) {
     }
     return cache.get(ciclo)!;
 }
+
+api.alCambiarSesion(() => cache.clear());

@@ -124,6 +124,19 @@ function getToken() {
     return getCookie(TOKEN_COOKIE) as string | undefined;
 }
 
+// Los módulos que guardan datos de la sesión en memoria (nombre, cursos, materias…) se registran acá
+// para vaciarlos cuando cambia la cuenta. La navegación entre pantallas no recarga la página, así que
+// sin esto el usuario siguiente vería los datos (y el nombre) del anterior.
+const alCambiarSesionFns = new Set<() => void>();
+
+export function alCambiarSesion(vaciar: () => void): void {
+    alCambiarSesionFns.add(vaciar);
+}
+
+function sesionCambiada(): void {
+    alCambiarSesionFns.forEach((vaciar) => vaciar());
+}
+
 // Token vencido o inválido: se descarta la cookie y se vuelve al login.
 // Las pantallas públicas (inicio, login, registro) validan el token por su cuenta.
 const RUTAS_PUBLICAS = ["/", "/login", "/registro"];
@@ -133,6 +146,7 @@ function sesionVencida(endpoint: string) {
     // Un 401 al iniciar sesión es "credenciales incorrectas", no una sesión vencida.
     if (endpoint.startsWith("/auth/login") || endpoint.startsWith("/auth/registro")) return;
     deleteCookie(TOKEN_COOKIE, { path: "/" });
+    sesionCambiada();
     if (!RUTAS_PUBLICAS.includes(window.location.pathname)) window.location.replace("/login");
 }
 
@@ -265,14 +279,19 @@ export const auth = {
     getProfile: () => get<Usuario>("/auth/profile/"),
 
     // Manejo del token en cookie
-    setToken: (token: string) =>
+    setToken: (token: string) => {
+        sesionCambiada();
         setCookie(TOKEN_COOKIE, token, {
             path: "/",
             maxAge: 60 * 60 * 24 * 7, // igual que la vigencia del JWT (7 días)
             sameSite: "lax",
             secure: typeof window !== "undefined" && window.location.protocol === "https:",
-        }),
-    logout: () => deleteCookie(TOKEN_COOKIE, { path: "/" }),
+        });
+    },
+    logout: () => {
+        deleteCookie(TOKEN_COOKIE, { path: "/" });
+        sesionCambiada();
+    },
 };
 
 /* -------------------------------------------------------------------------- */

@@ -153,6 +153,9 @@ export function invalidarDocente() {
     cache = null;
 }
 
+// Al cambiar de cuenta no puede quedar el nombre ni los datos del usuario anterior.
+api.alCambiarSesion(invalidarDocente);
+
 export function materiaDe(datos: DatosDocente, id: number | null) {
     if (id === null) return datos.materias[0] ?? null;
     return datos.materias.find((m) => m.materia.id === id) ?? datos.materias[0] ?? null;

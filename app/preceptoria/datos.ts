@@ -35,6 +35,9 @@ export function invalidarPreceptoria() {
     cache = null;
 }
 
+// Al cambiar de cuenta no puede quedar el nombre ni los datos del usuario anterior.
+api.alCambiarSesion(invalidarPreceptoria);
+
 export function cursoDe(datos: DatosPreceptoria, id: number | null) {
     if (id === null) return datos.cursos[0] ?? null;
     return datos.cursos.find((c) => c.id === id) ?? datos.cursos[0] ?? null;
