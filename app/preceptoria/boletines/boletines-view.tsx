@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckBadgeIcon, PrinterIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { coma, numero, ordinal } from "@/app/lib/format";
+import { coma, INASISTENCIAS_POR_BIMESTRE, numero, ordinal } from "@/app/lib/format";
 import { cursoLargo } from "@/app/lib/sesion";
 import type { BoletinResumen } from "@/app/lib/types";
 import {
@@ -427,7 +427,7 @@ export default function BoletinesView() {
                                                 {r.materiasDesaprobadas}
                                             </td>
                                             <td
-                                                className={`px-3 py-2.5 ${r.inasistenciasBimestre >= 6 ? "font-semibold text-red-600 dark:text-red-400" : "text-neutral-600 dark:text-neutral-300"}`}
+                                                className={`px-3 py-2.5 ${r.inasistenciasBimestre >= INASISTENCIAS_POR_BIMESTRE ? "font-semibold text-red-600 dark:text-red-400" : "text-neutral-600 dark:text-neutral-300"}`}
                                             >
                                                 {coma(r.inasistenciasBimestre)}
                                             </td>

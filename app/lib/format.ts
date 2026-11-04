@@ -81,7 +81,9 @@ export function coma(valor: number | null | undefined) {
 
 export const ESCALA_MAX = 10;
 export const NOTA_APROBACION = 6;
-export const INASISTENCIAS_PERMITIDAS = 28;
+// Reglamento: 21 inasistencias por año (límite anual) y 5 por bimestre. La llegada tarde cuenta ½.
+export const INASISTENCIAS_PERMITIDAS = 21;
+export const INASISTENCIAS_POR_BIMESTRE = 5;
 
 const PALABRAS = ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"];
 

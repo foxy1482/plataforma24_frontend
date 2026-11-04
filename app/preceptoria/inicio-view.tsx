@@ -12,7 +12,13 @@ import {
 import * as api from "@/app/lib/apiClient";
 import { alumnosDeCurso } from "@/app/lib/alumnos";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { coma, isoFecha, INASISTENCIAS_PERMITIDAS, ordinal } from "@/app/lib/format";
+import {
+    coma,
+    isoFecha,
+    INASISTENCIAS_PERMITIDAS,
+    INASISTENCIAS_POR_BIMESTRE,
+    ordinal,
+} from "@/app/lib/format";
 import { periodoActual } from "@/app/lib/periodos";
 import { cursoLargo, nombreCurso } from "@/app/lib/sesion";
 import type { Curso, EstadoAsistencia } from "@/app/lib/types";
@@ -282,7 +288,7 @@ export default function InicioPreceptoriaView() {
                         </Link>
                     </div>
                     <p className="mt-1 mb-3.5 text-xs text-neutral-500 dark:text-neutral-400">
-                        Límite anual: {INASISTENCIAS_PERMITIDAS} inasistencias · llegada tarde = ½ falta
+                        Límite: {INASISTENCIAS_PERMITIDAS} por año y {INASISTENCIAS_POR_BIMESTRE} por bimestre · llegada tarde = ½ falta
                     </p>
 
                     {!riesgo ? (

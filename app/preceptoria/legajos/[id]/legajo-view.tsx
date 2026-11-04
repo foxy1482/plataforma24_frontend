@@ -18,6 +18,7 @@ import {
     edadDe,
     fechaCorta,
     INASISTENCIAS_PERMITIDAS,
+    INASISTENCIAS_POR_BIMESTRE,
     numero,
     ordinal,
 } from "@/app/lib/format";
@@ -111,7 +112,8 @@ export default function LegajoView() {
     const desaprobadas = ultimo?.materiasDesaprobadas ?? 0;
     const restantes =
         legajo.anuales === null ? null : Math.max(0, INASISTENCIAS_PERMITIDAS - legajo.anuales);
-    const enRiesgo = restantes !== null && restantes <= 8;
+    // En riesgo cuando ya consumió el 70 % del límite anual (igual criterio que en las listas).
+    const enRiesgo = restantes !== null && restantes <= Math.floor(INASISTENCIAS_PERMITIDAS * 0.3);
     const edad = edadDe(datos?.fechaNacimiento);
     const sinDatos = !datos;
 
@@ -312,7 +314,7 @@ export default function LegajoView() {
                                                     {b.diasRegistrados}
                                                 </td>
                                                 <td
-                                                    className={`py-2 ${b.ausentes >= 6 ? "font-semibold text-red-600 dark:text-red-400" : "text-neutral-600 dark:text-neutral-300"}`}
+                                                    className={`py-2 ${b.totalInasistencias >= INASISTENCIAS_POR_BIMESTRE ? "font-semibold text-red-600 dark:text-red-400" : "text-neutral-600 dark:text-neutral-300"}`}
                                                 >
                                                     {b.ausentes}
                                                 </td>
@@ -323,7 +325,7 @@ export default function LegajoView() {
                                                     {b.justificadas}
                                                 </td>
                                                 <td className="py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                                                    {coma(b.totalInasistencias)}
+                                                    {coma(b.totalInasistencias)} / {INASISTENCIAS_POR_BIMESTRE}
                                                 </td>
                                             </tr>
                                         ))}

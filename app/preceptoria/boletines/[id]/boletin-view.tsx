@@ -12,7 +12,14 @@ import {
 } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { coma, fechaCorta, INASISTENCIAS_PERMITIDAS, numero, ordinal } from "@/app/lib/format";
+import {
+    coma,
+    fechaCorta,
+    INASISTENCIAS_PERMITIDAS,
+    INASISTENCIAS_POR_BIMESTRE,
+    numero,
+    ordinal,
+} from "@/app/lib/format";
 import type { BoletinDetalle, BoletinResumen, InasistenciaPeriodo } from "@/app/lib/types";
 import {
     Avatar,
@@ -423,8 +430,10 @@ export default function BoletinView() {
                             ))}
                         </div>
                         <p className="mt-2.5 text-xs text-neutral-500 dark:text-neutral-400">
-                            Acumulado del año: {anual === null ? "—" : coma(anual)} de{" "}
-                            {INASISTENCIAS_PERMITIDAS} permitidas
+                            Este bimestre:{" "}
+                            {delBimestre ? coma(delBimestre.totalInasistencias) : "—"} de{" "}
+                            {INASISTENCIAS_POR_BIMESTRE} permitidas · Acumulado del año:{" "}
+                            {anual === null ? "—" : coma(anual)} de {INASISTENCIAS_PERMITIDAS} permitidas
                         </p>
                         <Link
                             href={`/preceptoria/legajos/${r.idAlumno}`}
