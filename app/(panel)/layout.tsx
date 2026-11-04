@@ -10,7 +10,8 @@ import {
     BookOpenIcon,
     ClipboardDocumentCheckIcon,
     ChartBarIcon,
-    UsersIcon
+    UsersIcon,
+    ChatBubbleLeftRightIcon
 } from "@heroicons/react/24/outline";
 import ThemeToggle from "@/app/components/themetoggle";
 import { ErrorPanel } from "@/app/components/ui";
@@ -57,6 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { name: "Tareas", href: "/tareas", icon: ClipboardDocumentCheckIcon },
         { name: "Calificaciones", href: "/calificaciones", icon: ChartBarIcon },
         { name: "Cursos", href: "/cursos", icon: UsersIcon },
+        { name: "Foro", href: "/foro", icon: ChatBubbleLeftRightIcon },
     ];
 
     return (
@@ -136,7 +138,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Navegación inferior para celulares: el menú horizontal solo existe desde md */}
             <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800">
-                <div className="grid grid-cols-5">
+                <div className="grid grid-cols-6">
                     {links.map((link) => {
                         const isActive = estaActivo(pathname, link.href);
                         return (

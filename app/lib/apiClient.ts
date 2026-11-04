@@ -565,13 +565,13 @@ export const boletines = {
 export const foro = {
     temas: (idCurso?: number) => get<Lista<ForoTema>>("/foro/temas", { idCurso }),
     crearTema: (data: { idCurso?: number | null; titulo: string; primerMensaje?: string }) =>
-        post<unknown>("/foro/temas", data),
+        post<{ id: number }>("/foro/temas", data),
     modificarTema: (idTema: number, data: { fijado?: boolean; cerrado?: boolean }) =>
         patch<unknown>(`/foro/temas/${idTema}`, data),
     eliminarTema: (idTema: number) => del<null>(`/foro/temas/${idTema}`),
     mensajes: (idTema: number) => get<Lista<ForoMensaje>>(`/foro/temas/${idTema}/mensajes`),
     crearMensaje: (idTema: number, data: { contenido: string; idRespuestaA?: number | null }) =>
-        post<unknown>(`/foro/temas/${idTema}/mensajes`, data),
+        post<{ id: number }>(`/foro/temas/${idTema}/mensajes`, data),
     modificarMensaje: (idMensaje: number, contenido: string) =>
         patch<unknown>(`/foro/mensajes/${idMensaje}`, { contenido }),
     eliminarMensaje: (idMensaje: number) => del<null>(`/foro/mensajes/${idMensaje}`),

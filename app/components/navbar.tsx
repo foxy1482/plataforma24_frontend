@@ -12,6 +12,7 @@ const RUTAS_PANEL = [
     "/tareas",
     "/calificaciones",
     "/cursos",
+    "/foro",
     "/avisos",
     "/docente",
     "/preceptoria",
