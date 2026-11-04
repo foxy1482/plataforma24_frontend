@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { notificar } from "@/app/components/avisos";
 import * as api from "@/app/lib/apiClient";
+import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
 import { normalizar } from "@/app/lib/format";
 import { cursoLargo, inicialesDeNombre, ordenarCursos } from "@/app/lib/sesion";
 import type { Curso, Rol, Usuario } from "@/app/lib/types";
-import { Avatar, BTN_R, CARD, Cargando, ErrorPanel, Select, Vacio } from "@/app/components/ui";
+import { Avatar, BTN_G, BTN_R, CARD, Cargando, ErrorPanel, Select, Vacio } from "@/app/components/ui";
 
 interface Datos {
     yo: number;
@@ -65,10 +68,27 @@ export default function UsuariosView() {
         try {
             await api.usuarios.modificar(u.id, cambios);
             setAviso({ texto: "Cambios guardados.", ok: true });
-        } catch {
+        } catch (e) {
+            registrarError(e);
             actualizar(u.id, anterior);
-            setAviso({ texto: "No se pudo guardar el cambio.", ok: false });
+            notificar(
+                e instanceof ApiError && e.status === 403
+                    ? "Tu usuario no tiene permiso para modificar esta cuenta."
+                    : mensajeDeError(e, "No se pudo guardar el cambio.")
+            );
         }
+    };
+
+    const cambiarRol = (u: Usuario, idRol: number) => {
+        if (idRol >= 3 && idRol <= 7) {
+            const nombreRol = datos?.roles.find((r) => r.id === idRol)?.nombre ?? `rol ${idRol}`;
+            const nombre = u.nombreUsuario ?? u.nombre ?? u.email;
+            const ok = window.confirm(
+                `Vas a asignar el rol "${nombreRol}" a ${nombre}. Este rol permite ver y modificar datos de otras personas. ¿Confirmás el cambio?`
+            );
+            if (!ok) return;
+        }
+        guardar(u, { idRol });
     };
 
     const eliminar = async (u: Usuario) => {
@@ -79,8 +99,9 @@ export default function UsuariosView() {
             await api.usuarios.eliminar(u.id);
             setDatos((d) => d && { ...d, usuarios: d.usuarios.filter((x) => x.id !== u.id) });
             setAviso({ texto: `${nombre} fue eliminado.`, ok: true });
-        } catch {
-            setAviso({ texto: "No se pudo eliminar el usuario.", ok: false });
+        } catch (e) {
+            registrarError(e);
+            notificar(mensajeDeError(e, "No se pudo eliminar el usuario."));
         }
     };
 
@@ -170,10 +191,13 @@ export default function UsuariosView() {
                                     <li key={u.id} className="flex flex-wrap items-center gap-3 p-4">
                                         <Avatar iniciales={inicialesDeNombre(nombre.replace(/[._]+/g, " "))} id={u.id} />
                                         <div className="min-w-0 flex-1 basis-48">
-                                            <p className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                                            <Link
+                                                href={`/admin/usuarios/${u.id}`}
+                                                className="block truncate text-sm font-semibold text-neutral-900 hover:text-primary hover:underline dark:text-neutral-100"
+                                            >
                                                 {nombre}
                                                 {esYo && " (vos)"}
-                                            </p>
+                                            </Link>
                                             <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
                                                 {u.email} · {u.numeroLegajo}
                                             </p>
@@ -181,7 +205,7 @@ export default function UsuariosView() {
                                         <Select
                                             label={`Rol de ${nombre}`}
                                             valor={u.idRol}
-                                            onChange={(v) => guardar(u, { idRol: Number(v) })}
+                                            onChange={(v) => cambiarRol(u, Number(v))}
                                         >
                                             {datos.roles.map((r) => (
                                                 <option key={r.id} value={r.id} disabled={esYo}>
@@ -203,6 +227,14 @@ export default function UsuariosView() {
                                                 </option>
                                             ))}
                                         </Select>
+                                        <Link
+                                            href={`/admin/usuarios/${u.id}`}
+                                            aria-label={`Editar cuenta y datos de ${nombre}`}
+                                            className={`${BTN_G} h-10 px-3`}
+                                        >
+                                            <PencilSquareIcon className="h-5 w-5" />
+                                            <span className="hidden sm:inline">Editar</span>
+                                        </Link>
                                         <button
                                             type="button"
                                             onClick={() => eliminar(u)}

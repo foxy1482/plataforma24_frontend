@@ -47,12 +47,16 @@ export default function LegajoView() {
     const [cargado, setCargado] = useState<{ id: number; valor: Legajo } | null>(null);
     const legajo = cargado?.id === idAlumno ? cargado.valor : null;
     const [error, setError] = useState(false);
+    const [esAutoridad, setEsAutoridad] = useState(false);
     const [editandoDatos, setEditandoDatos] = useState(false);
     const [eliminando, setEliminando] = useState(false);
 
     const cargar = useCallback(() => {
         datosPreceptoria()
-            .then((d) => cargarLegajo(idAlumno, d.ciclo))
+            .then((d) => {
+                setEsAutoridad(d.sesion.papel === "directivo");
+                return cargarLegajo(idAlumno, d.ciclo);
+            })
             .then((valor) => setCargado({ id: idAlumno, valor }))
             .catch((e) => {
                 if (e instanceof ApiError && e.status === 401) {
@@ -161,10 +165,17 @@ export default function LegajoView() {
                         )}
                     </div>
                 </div>
-                <button onClick={() => window.print()} className={`${BTN_G} print:hidden`}>
-                    <PrinterIcon className="h-5 w-5" />
-                    Imprimir legajo
-                </button>
+                <div className="flex flex-wrap gap-2 print:hidden">
+                    {esAutoridad && (
+                        <Link href={`/admin/usuarios/${idAlumno}`} className={BTN_G}>
+                            Administrar cuenta
+                        </Link>
+                    )}
+                    <button onClick={() => window.print()} className={BTN_G}>
+                        <PrinterIcon className="h-5 w-5" />
+                        Imprimir legajo
+                    </button>
+                </div>
             </div>
 
             {enRiesgo && (
