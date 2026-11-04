@@ -81,11 +81,14 @@ export default function PanelLayout({
         router.replace("/login");
     };
 
-    const activo = (href: string) => {
-        const base = grupos[0]?.links[0]?.href;
-        if (href === base) return pathname === href;
-        return pathname === href || pathname.startsWith(`${href}/`);
-    };
+    // Un link queda activo solo si ningún otro, más específico, también coincide con la ruta
+    // (así "Nueva tarea" no deja marcado también a "Por corregir", que es su prefijo).
+    const base = grupos[0]?.links[0]?.href;
+    const coincide = (href: string) =>
+        href === base ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+    const todos = grupos.flatMap((g) => g.links.map((l) => l.href));
+    const activo = (href: string) =>
+        coincide(href) && !todos.some((otro) => otro.length > href.length && coincide(otro));
 
     return (
         <div className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">

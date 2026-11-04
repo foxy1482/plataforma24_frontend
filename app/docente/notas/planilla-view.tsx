@@ -23,6 +23,7 @@ import {
 } from "@/app/components/ui";
 import { datosDocente, materiaDe, type DatosDocente } from "../datos";
 import { notificar } from "@/app/components/avisos";
+import SinMaterias from "@/app/components/sin-materias";
 
 interface FilaPlanilla {
     idBoletin: number;
@@ -221,7 +222,7 @@ export default function PlanillaView() {
     }
     if (!datos) return <Cargando className="h-96" />;
     if (datos.materias.length === 0 || !materia) {
-        return <Vacio>No tenés materias asignadas todavía.</Vacio>;
+        return <SinMaterias />;
     }
 
     const cargadas = (filas ?? []).filter((f) => f.nota !== null).length;

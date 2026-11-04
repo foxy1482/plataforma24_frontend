@@ -26,6 +26,7 @@ import {
     Vacio,
 } from "@/app/components/ui";
 import { datosDocente, invalidarDocente, materiaDe, type DatosDocente } from "../../datos";
+import SinMaterias from "@/app/components/sin-materias";
 
 export default function NuevaTareaView() {
     const router = useRouter();
@@ -140,7 +141,7 @@ export default function NuevaTareaView() {
 
     if (error) return <ErrorPanel mensaje="No pudimos cargar tus materias." />;
     if (!datos) return <Cargando className="h-96" />;
-    if (datos.materias.length === 0) return <Vacio>No tenés materias asignadas todavía.</Vacio>;
+    if (datos.materias.length === 0) return <SinMaterias />;
 
     return (
         <div className="mx-auto max-w-5xl space-y-5">

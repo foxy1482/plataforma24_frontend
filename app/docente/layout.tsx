@@ -7,6 +7,7 @@ import {
     DocumentPlusIcon,
     FolderIcon,
     HomeIcon,
+    PlusCircleIcon,
     TableCellsIcon,
 } from "@heroicons/react/24/outline";
 import PanelLayout from "@/app/components/panel-layout";
@@ -38,6 +39,7 @@ export default function DocenteLayout({ children }: { children: React.ReactNode 
             links: [
                 { name: "Inicio", href: "/docente", icon: HomeIcon },
                 { name: "Mis materias", href: "/docente/materias", icon: BookOpenIcon },
+                { name: "Nueva materia", href: "/docente/materias/nueva", icon: PlusCircleIcon },
             ],
         },
         {

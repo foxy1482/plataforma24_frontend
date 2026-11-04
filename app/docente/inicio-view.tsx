@@ -21,6 +21,7 @@ import {
     Vacio,
 } from "@/app/components/ui";
 import { datosDocente, type DatosDocente, type TareaDocente } from "./datos";
+import SinMaterias from "@/app/components/sin-materias";
 
 interface Extra {
     periodo: PeriodoApi | null;
@@ -261,7 +262,7 @@ export default function InicioDocenteView() {
                     Mis materias
                 </h2>
                 {datos.materias.length === 0 ? (
-                    <Vacio>No tenés materias asignadas todavía.</Vacio>
+                    <SinMaterias />
                 ) : (
                     <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                         {datos.materias.map((m) => (

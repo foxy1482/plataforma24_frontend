@@ -1,13 +1,16 @@
 "use client";
 
-import { HomeIcon, IdentificationIcon, UsersIcon } from "@heroicons/react/24/outline";
+import { BookOpenIcon, HomeIcon, IdentificationIcon, UsersIcon } from "@heroicons/react/24/outline";
 import PanelLayout from "@/app/components/panel-layout";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const grupos = [
         {
             titulo: "Administración",
-            links: [{ name: "Usuarios", href: "/admin/usuarios", icon: UsersIcon }],
+            links: [
+                { name: "Usuarios", href: "/admin/usuarios", icon: UsersIcon },
+                { name: "Materias", href: "/admin/materias", icon: BookOpenIcon },
+            ],
         },
         {
             titulo: "Escuela",

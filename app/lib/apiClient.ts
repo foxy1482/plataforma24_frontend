@@ -364,6 +364,18 @@ export const cursos = {
 /*  Materias                                                                  */
 /* -------------------------------------------------------------------------- */
 
+export interface NuevaMateria {
+    nombre: string;
+    idCurso: number;
+    idProfesor?: number;
+}
+
+export interface CambiosMateria {
+    nombre?: string;
+    idCurso?: number;
+    idProfesor?: number;
+}
+
 export const materias = {
     listar: () => get<Lista<Materia>>("/materias/"),
     porProfesor: (numProfesor: number) =>
@@ -371,11 +383,12 @@ export const materias = {
     porCurso: (numCurso: number) =>
         get<Lista<Materia>>("/materias", { curso: numCurso }),
     porNumero: (numero: number) => get<Materia>(`/materias/${numero}`),
-    crear: (data: Omit<Materia, "id" | "horario" | "aula">) => post<Materia>("/materias/", data),
-    modificar: (
-        numero: number,
-        data: Partial<Pick<Materia, "idProfesor" | "idCurso">>
-    ) => patch<Materia>(`/materias/${numero}`, data),
+    // Un docente crea sus propias materias (el backend le asigna el idProfesor); una autoridad
+    // administradora tiene que indicar el profesor.
+    crear: (data: NuevaMateria) => post<Materia>("/materias", data),
+    // El backend responde 204: no devuelve la materia modificada.
+    modificar: (numero: number, data: CambiosMateria) =>
+        patch<null>(`/materias/${numero}`, data),
     eliminar: (numero: number) => del<null>(`/materias/${numero}`),
     // Entregas que hizo un alumno dentro de una materia
     entregasDeAlumno: (materiaId: number, legajo: number | string) =>

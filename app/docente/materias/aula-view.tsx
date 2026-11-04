@@ -5,17 +5,21 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
     ArrowUpTrayIcon,
+    BookOpenIcon,
     ClockIcon,
+    PencilSquareIcon,
     PlusIcon,
     TrashIcon,
 } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
-import { ApiError, registrarError } from "@/app/lib/apiClient";
+import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
 import { fechaCorta, fechaHora, numero, parseFecha, promedio, notaNumerica } from "@/app/lib/format";
-import type { ForoTema } from "@/app/lib/types";
+import type { Curso, ForoTema } from "@/app/lib/types";
+import MateriaForm from "@/app/components/materia-form";
 import {
     BTN_G,
     BTN_P,
+    BTN_R,
     CARD,
     Cargando,
     Chip,
@@ -105,6 +109,9 @@ export default function AulaView() {
     const [pestana, setPestana] = useState<Pestana>("tareas");
     const [temas, setTemas] = useState<ForoTema[] | null>(null);
     const [borrando, setBorrando] = useState<number | null>(null);
+    const [editando, setEditando] = useState(false);
+    const [cursos, setCursos] = useState<Curso[] | null>(null);
+    const [eliminandoMateria, setEliminandoMateria] = useState(false);
 
     const cargar = useCallback(() => {
         datosDocente()
@@ -152,6 +159,56 @@ export default function AulaView() {
         }
     };
 
+    // Los cursos se piden recién cuando el docente abre la edición.
+    const abrirEdicion = () => {
+        setEditando(true);
+        if (cursos) return;
+        api.cursos
+            .listar()
+            .then((l) => setCursos(l ?? []))
+            .catch((e) => {
+                registrarError(e);
+                notificar("No pudimos cargar los cursos. Intentá de nuevo.");
+                setEditando(false);
+            });
+    };
+
+    const recargar = () => {
+        invalidarDocente();
+        setDatos(null);
+        cargar();
+    };
+
+    const eliminarMateria = async (m: MateriaDocente) => {
+        const asociado =
+            m.tareas.length > 0
+                ? ` Tiene ${m.tareas.length} ${m.tareas.length === 1 ? "tarea" : "tareas"} cargadas.`
+                : "";
+        if (
+            !window.confirm(
+                `¿Eliminar la materia "${m.materia.nombre}" (${m.cursoNombre})?${asociado} Esta acción no se puede deshacer.`
+            )
+        ) {
+            return;
+        }
+        setEliminandoMateria(true);
+        try {
+            await api.materias.eliminar(m.materia.id);
+            setEditando(false);
+            router.replace("/docente/materias");
+            recargar();
+        } catch (e) {
+            registrarError(e);
+            notificar(
+                e instanceof ApiError && e.status === 403
+                    ? "No podés eliminar una materia que no está a tu cargo."
+                    : mensajeDeError(e, "No se pudo eliminar la materia. Intentá de nuevo.")
+            );
+        } finally {
+            setEliminandoMateria(false);
+        }
+    };
+
     if (error) {
         return (
             <ErrorPanel
@@ -166,7 +223,21 @@ export default function AulaView() {
 
     if (!datos || !materia) {
         if (datos && datos.materias.length === 0) {
-            return <Vacio>No tenés materias asignadas todavía.</Vacio>;
+            return (
+                <div className={`${CARD} flex flex-col items-center gap-3 p-10 text-center`}>
+                    <BookOpenIcon className="h-10 w-10 text-neutral-400" />
+                    <p className="text-neutral-700 dark:text-neutral-300">
+                        Todavía no tenés materias. Creá la primera.
+                    </p>
+                    <p className="max-w-md text-sm text-neutral-500 dark:text-neutral-400">
+                        Elegís el nombre y el curso en el que la dictás, sin pasar por la administración.
+                    </p>
+                    <Link href="/docente/materias/nueva" className={BTN_P}>
+                        <PlusIcon className="h-5 w-5" />
+                        Nueva materia
+                    </Link>
+                </div>
+            );
         }
         return (
             <div className="space-y-4">
@@ -241,6 +312,55 @@ export default function AulaView() {
                     </Link>
                 </div>
             </div>
+
+            <div className="flex flex-wrap gap-2.5">
+                <Link href="/docente/materias/nueva" className={BTN_G}>
+                    <PlusIcon className="h-5 w-5" />
+                    Nueva materia
+                </Link>
+                <button
+                    type="button"
+                    onClick={() => (editando ? setEditando(false) : abrirEdicion())}
+                    aria-expanded={editando}
+                    className={BTN_G}
+                >
+                    <PencilSquareIcon className="h-5 w-5" />
+                    Editar materia
+                </button>
+                <button
+                    type="button"
+                    onClick={() => eliminarMateria(materia)}
+                    disabled={eliminandoMateria}
+                    className={BTN_R}
+                >
+                    <TrashIcon className="h-5 w-5" />
+                    {eliminandoMateria ? "Eliminando…" : "Eliminar materia"}
+                </button>
+            </div>
+
+            {editando && (
+                <section aria-label="Editar materia" className={`${CARD} p-5`}>
+                    <h2 className="font-libertinus text-xl font-bold text-neutral-900 dark:text-neutral-100">
+                        Editar materia
+                    </h2>
+                    <div className="mt-4 max-w-xl">
+                        {cursos ? (
+                            <MateriaForm
+                                key={materia.materia.id}
+                                materia={materia.materia}
+                                cursos={cursos}
+                                onGuardado={() => {
+                                    setEditando(false);
+                                    recargar();
+                                }}
+                                onCancelar={() => setEditando(false)}
+                            />
+                        ) : (
+                            <Cargando className="h-40" />
+                        )}
+                    </div>
+                </section>
+            )}
 
             <div
                 role="tablist"

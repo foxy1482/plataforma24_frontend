@@ -28,6 +28,7 @@ import {
 } from "@/app/components/ui";
 import { datosDocente, materiaDe, type DatosDocente } from "../datos";
 import { notificar } from "@/app/components/avisos";
+import SinMaterias from "@/app/components/sin-materias";
 
 interface Item {
     material: Material;
@@ -218,7 +219,7 @@ export default function MaterialesView() {
     }
     if (!datos) return <Cargando className="h-96" />;
     if (datos.materias.length === 0 || !materia) {
-        return <Vacio>No tenés materias asignadas todavía.</Vacio>;
+        return <SinMaterias />;
     }
 
     const q = normalizar(busqueda.trim());
