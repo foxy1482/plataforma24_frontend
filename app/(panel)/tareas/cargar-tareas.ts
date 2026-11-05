@@ -39,8 +39,15 @@ export async function cargarTareas(): Promise<TareasData> {
         throw new Error("No se pudieron cargar las tareas");
     }
 
+    // El backend lista también las tareas con publicación programada a futuro: el alumno no
+    // debe verlas (ni contarlas como pendientes) hasta que llegue su fecha.
     const items: TareaItem[] = porMateria.flatMap(({ materia, tareas, entregas }) =>
-        (tareas ?? []).map((tarea): TareaItem => {
+        (tareas ?? [])
+            .filter((tarea) => {
+                const publicada = parseFecha(tarea.publicadaDesde);
+                return !publicada || publicada.getTime() <= hoy.getTime();
+            })
+            .map((tarea): TareaItem => {
             const titulo = leer<string>(tarea, "titulo", "nombre") ?? "Tarea sin título";
             const entrega = (entregas ?? []).find((e) => tareaDeEntrega(e) === tarea.id);
 

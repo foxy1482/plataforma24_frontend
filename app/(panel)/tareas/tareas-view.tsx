@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
+import { ErrorPanel } from "@/app/components/ui";
 import { cargarTareas, type TareasData } from "./cargar-tareas";
 import { formatoHoy } from "./tarea-utils";
 import Calendario from "./calendario";
@@ -14,7 +14,6 @@ function Bloque({ className }: { className: string }) {
 }
 
 function describir({ hoy, tareas }: TareasData) {
-    // Pendientes cuyo vencimiento cae en el mes actual
     const delMes = tareas.filter(
         (t) =>
             !t.entrega &&
@@ -23,11 +22,17 @@ function describir({ hoy, tareas }: TareasData) {
             t.fecha.getFullYear() === hoy.getFullYear()
     ).length;
 
+    const vencidas = tareas.filter(
+        (t) => !t.entrega && t.fecha && t.fecha.getTime() < hoy.getTime()
+    ).length;
+
     const pendientes =
         delMes === 0
             ? "No tenés entregas pendientes este mes"
             : `Tenés ${delMes} ${delMes === 1 ? "entrega pendiente" : "entregas pendientes"} este mes`;
-    return `${pendientes} · Hoy es ${formatoHoy(hoy)}`;
+    const atrasadas =
+        vencidas > 0 ? ` · ${vencidas} ${vencidas === 1 ? "vencida sin entregar" : "vencidas sin entregar"}` : "";
+    return `${pendientes}${atrasadas} · Hoy es ${formatoHoy(hoy)}`;
 }
 
 export default function TareasView() {
@@ -40,7 +45,7 @@ export default function TareasView() {
             .then(setData)
             .catch((e) => {
                 if (e instanceof ApiError && e.status === 401) {
-                    router.replace("/login"); // sesión vencida o sin iniciar
+                    router.replace("/login");
                     return;
                 }
                 registrarError(e);
@@ -71,18 +76,10 @@ export default function TareasView() {
             </header>
 
             {error ? (
-                <div className="flex flex-col items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-10 text-center dark:border-neutral-700 dark:bg-neutral-800">
-                    <ExclamationTriangleIcon className="h-10 w-10 text-red-500" />
-                    <p className="text-neutral-700 dark:text-neutral-300">
-                        No pudimos cargar tus tareas. Revisá tu conexión e intentá de nuevo.
-                    </p>
-                    <button
-                        onClick={reintentar}
-                        className="rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                    >
-                        Reintentar
-                    </button>
-                </div>
+                <ErrorPanel
+                    mensaje="No pudimos cargar tus tareas. Revisá tu conexión e intentá de nuevo."
+                    onReintentar={reintentar}
+                />
             ) : !data ? (
                 <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
                     <Bloque className="h-[34rem]" />
@@ -90,8 +87,12 @@ export default function TareasView() {
                 </div>
             ) : (
                 <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
-                    <Calendario tareas={data.tareas} hoy={data.hoy} />
-                    <ListaTareas tareas={data.tareas} hoy={data.hoy} />
+                    <div className="order-2 lg:order-1">
+                        <Calendario tareas={data.tareas} hoy={data.hoy} />
+                    </div>
+                    <div className="order-1 lg:order-2">
+                        <ListaTareas tareas={data.tareas} hoy={data.hoy} />
+                    </div>
                 </div>
             )}
         </div>

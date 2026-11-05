@@ -2,7 +2,6 @@ import Link from "next/link";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { BTN_P, CARD } from "@/app/components/ui";
 
-// Estado vacío del panel docente: en vez de "pedile a la administración", se ofrece crear la materia.
 export default function SinMaterias() {
     return (
         <div className={`${CARD} flex flex-col items-center gap-3 p-8 text-center`}>

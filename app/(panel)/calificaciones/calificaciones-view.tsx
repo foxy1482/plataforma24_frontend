@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { ArrowDownTrayIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
+import { ErrorPanel } from "@/app/components/ui";
+import { coma, INASISTENCIAS_POR_BIMESTRE } from "@/app/lib/format";
 import BimestreCard from "./bimestre-card";
 import {
     cargarCalificaciones,
@@ -44,7 +46,7 @@ export default function CalificacionesView() {
             .then(setData)
             .catch((e) => {
                 if (e instanceof ApiError && e.status === 401) {
-                    router.replace("/login"); // sesión vencida o sin iniciar
+                    router.replace("/login");
                     return;
                 }
                 registrarError(e);
@@ -81,7 +83,6 @@ export default function CalificacionesView() {
     const ciclo = data ? cicloLectivo(data.curso, data.hoy) : null;
     const cursoTexto = data ? describirCurso(data.curso) : "";
 
-    // Por defecto quedan desplegados el último bimestre cerrado y los que siguen
     const ultimoCerrado = data ? data.bimestres.findLastIndex((b) => b.estado === "cerrado") : -1;
 
     return (
@@ -116,18 +117,10 @@ export default function CalificacionesView() {
             </header>
 
             {error ? (
-                <div className="flex flex-col items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-10 text-center dark:border-neutral-700 dark:bg-neutral-800">
-                    <ExclamationTriangleIcon className="h-10 w-10 text-red-500" />
-                    <p className="text-neutral-700 dark:text-neutral-300">
-                        No pudimos cargar tus calificaciones. Revisá tu conexión e intentá de nuevo.
-                    </p>
-                    <button
-                        onClick={reintentar}
-                        className="rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                    >
-                        Reintentar
-                    </button>
-                </div>
+                <ErrorPanel
+                    mensaje="No pudimos cargar tus calificaciones. Revisá tu conexión e intentá de nuevo."
+                    onReintentar={reintentar}
+                />
             ) : !data ? (
                 <>
                     <div className="grid gap-4 sm:grid-cols-3">
@@ -172,8 +165,21 @@ export default function CalificacionesView() {
                         <div className={TARJETA}>
                             <p className={ETIQUETA}>Inasistencias acumuladas</p>
                             <p className="mt-1">
-                                <span className={`${NUMERO} ${NUMERO_NEUTRO}`}>{data.inasistencias ?? "—"}</span>
+                                <span
+                                    className={`${NUMERO} ${
+                                        data.inasistencias !== null && data.inasistencias >= INASISTENCIAS_PERMITIDAS * 0.7
+                                            ? "text-red-600 dark:text-red-400"
+                                            : NUMERO_NEUTRO
+                                    }`}
+                                >
+                                    {data.inasistencias === null ? "—" : coma(data.inasistencias)}
+                                </span>
                                 <span className={COMPLEMENTO}>de {INASISTENCIAS_PERMITIDAS} permitidas</span>
+                            </p>
+                            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                {data.inasistencias === null
+                                    ? "Todavía no hay asistencia registrada."
+                                    : `Te ${Math.max(0, INASISTENCIAS_PERMITIDAS - data.inasistencias) === 1 ? "queda" : "quedan"} ${coma(Math.max(0, INASISTENCIAS_PERMITIDAS - data.inasistencias))} · ${INASISTENCIAS_POR_BIMESTRE} por bimestre · la llegada tarde cuenta ½`}
                             </p>
                         </div>
                     </div>
@@ -193,6 +199,11 @@ export default function CalificacionesView() {
                                 />
                             ))}
                         </div>
+                    )}
+                    {data.bimestres.some((b) => b.estado === "en-curso" && b.promedio !== null) && (
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                            * Promedio parcial: el bimestre en curso todavía puede cambiar.
+                        </p>
                     )}
                 </>
             )}

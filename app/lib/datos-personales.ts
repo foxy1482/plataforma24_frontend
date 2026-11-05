@@ -1,9 +1,5 @@
 import type { DatosPersonalesPayload, Sexo } from "./types";
 
-/* -------------------------------------------------------------------------- */
-/*  Sexo                                                                      */
-/* -------------------------------------------------------------------------- */
-
 // El backend serializa el enum Sexo por su posición: Masculino = 0, Femenino = 1.
 // Se acepta también el texto por si algún endpoint lo devolviera así.
 export const SEXO_MASCULINO: Sexo = 0;
@@ -26,10 +22,6 @@ export function sexoTexto(valor: unknown): string {
     return OPCIONES_SEXO.find((o) => o.valor === sexo)?.etiqueta ?? "—";
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Fecha de nacimiento                                                       */
-/* -------------------------------------------------------------------------- */
-
 const SOLO_FECHA = /^(\d{4})-(\d{2})-(\d{2})/;
 
 // "2008-03-15" -> "15/03/2008". No pasa por Date: una fecha sin hora se interpretaría
@@ -39,7 +31,6 @@ export function fechaNacimientoTexto(valor: string | null | undefined): string {
     return m ? `${m[3]}/${m[2]}/${m[1]}` : "—";
 }
 
-// Valor para <input type="date"> a partir de lo que devuelve la API.
 export function fechaParaInput(valor: string | null | undefined): string {
     const m = valor?.match(SOLO_FECHA);
     return m ? `${m[1]}-${m[2]}-${m[3]}` : "";
@@ -51,10 +42,6 @@ export function hoyParaInput(): string {
     const dd = String(hoy.getDate()).padStart(2, "0");
     return `${hoy.getFullYear()}-${mm}-${dd}`;
 }
-
-/* -------------------------------------------------------------------------- */
-/*  Formulario                                                                */
-/* -------------------------------------------------------------------------- */
 
 export interface ValoresDatos {
     nombre: string;
@@ -107,7 +94,6 @@ export function validarDatos(
     return errores;
 }
 
-// Arma el cuerpo para el backend a partir de los valores ya validados.
 export function aPayload(v: ValoresDatos): DatosPersonalesPayload {
     const payload: DatosPersonalesPayload = {
         nombre: v.nombre.trim(),

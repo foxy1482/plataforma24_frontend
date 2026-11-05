@@ -60,7 +60,7 @@ export default function BimestreCard({
                 onClick={() => setAbierto(!abierto)}
                 aria-expanded={visible}
                 aria-controls={idTabla}
-                className="flex w-full items-center justify-between gap-3 rounded-2xl p-5 text-left"
+                className="flex min-h-11 w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-2xl p-5 text-left"
             >
                 <div>
                     <h2 className="font-libertinus text-2xl font-bold text-neutral-900 dark:text-neutral-100">
@@ -88,6 +88,13 @@ export default function BimestreCard({
 
             {visible && (
                 <div id={idTabla} className="px-5 pb-5">
+                    {bimestre.filas.length === 0 ? (
+                        <p className="rounded-xl bg-neutral-100 p-5 text-center text-sm text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+                            {bimestre.estado === "proximo"
+                                ? "Este bimestre todavía no empezó."
+                                : "Todavía no hay notas cargadas en este bimestre."}
+                        </p>
+                    ) : (
                     <div className="overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-900">
                         <table className="w-full text-left">
                             <thead>
@@ -126,6 +133,7 @@ export default function BimestreCard({
                             </tbody>
                         </table>
                     </div>
+                    )}
                 </div>
             )}
         </section>

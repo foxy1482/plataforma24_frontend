@@ -22,6 +22,8 @@ import { ApiError, auth } from "@/app/lib/apiClient";
 // (ej: /materias/3 mantiene "Materias" activo).
 function estaActivo(pathname: string, href: string) {
     if (href === "/dashboard") return pathname === href;
+    // Un material (/material/3) se abre desde su materia: se marca "Materias".
+    if (href === "/materias" && pathname.startsWith("/material/")) return true;
     return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -52,13 +54,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         router.replace("/login");
     };
 
+    // `corto` es el rótulo del menú inferior del celular, donde cada ítem tiene ~50 px de ancho.
     const links = [
-        { name: "Inicio", href: "/dashboard", icon: AcademicCapIcon },
-        { name: "Materias", href: "/materias", icon: BookOpenIcon },
-        { name: "Tareas", href: "/tareas", icon: ClipboardDocumentCheckIcon },
-        { name: "Calificaciones", href: "/calificaciones", icon: ChartBarIcon },
-        { name: "Cursos", href: "/cursos", icon: UsersIcon },
-        { name: "Foro", href: "/foro", icon: ChatBubbleLeftRightIcon },
+        { name: "Inicio", corto: "Inicio", href: "/dashboard", icon: AcademicCapIcon },
+        { name: "Materias", corto: "Materias", href: "/materias", icon: BookOpenIcon },
+        { name: "Tareas", corto: "Tareas", href: "/tareas", icon: ClipboardDocumentCheckIcon },
+        { name: "Calificaciones", corto: "Notas", href: "/calificaciones", icon: ChartBarIcon },
+        { name: "Cursos", corto: "Cursos", href: "/cursos", icon: UsersIcon },
+        { name: "Foro", corto: "Foro", href: "/foro", icon: ChatBubbleLeftRightIcon },
     ];
 
     return (
@@ -75,6 +78,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </span>
                             </Link>
 
+                            {/* Con 6 secciones no entran icono + nombre antes de xl: de md a xl queda solo el icono
+                                (con tooltip y nombre accesible) para que el menú no se desborde. */}
                             <div className="hidden md:flex items-center gap-1">
                                 {links.map((link) => {
                                     const isActive = estaActivo(pathname, link.href);
@@ -82,16 +87,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         <Link
                                             key={link.name}
                                             href={link.href}
-                                            className={`flex font-libertinus items-center gap-2 px-3 py-2 rounded-xl text-md font-medium transition-colors ${
-                                                isActive 
-                                                    ? "bg-primary/10 text-primary dark:bg-primary/20" 
+                                            title={link.name}
+                                            aria-label={link.name}
+                                            aria-current={isActive ? "page" : undefined}
+                                            className={`flex font-libertinus items-center gap-2 h-11 px-3 rounded-xl text-base font-medium transition-colors ${
+                                                isActive
+                                                    ? "bg-primary/10 text-primary dark:bg-primary/20"
                                                     : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
                                             }`}
                                         >
-                                            <div className="p-1.5 rounded-2xl border-primary/50 border-3">
-                                            <link.icon className="h-6 w-6" />
-                                            </div>
-                                            {link.name}
+                                            <link.icon className="h-6 w-6 shrink-0" />
+                                            <span className="hidden xl:inline">{link.name}</span>
                                         </Link>
                                     );
                                 })}
@@ -136,7 +142,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </p>
             </footer>
 
-            {/* Navegación inferior para celulares: el menú horizontal solo existe desde md */}
             <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800">
                 <div className="grid grid-cols-6">
                     {links.map((link) => {
@@ -145,12 +150,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className={`flex flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
+                                aria-label={link.name}
+                                aria-current={isActive ? "page" : undefined}
+                                className={`flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors ${
                                     isActive ? "text-primary" : "text-neutral-500 dark:text-neutral-400"
                                 }`}
                             >
                                 <link.icon className="h-5 w-5" />
-                                <span className="max-w-full truncate px-0.5">{link.name}</span>
+                                <span className="max-w-full truncate px-0.5">{link.corto}</span>
                             </Link>
                         );
                     })}

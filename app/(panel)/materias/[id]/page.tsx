@@ -14,10 +14,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { auth, materias, tareas, materiales, materialArchivos, registrarError } from "@/app/lib/apiClient";
 import { ArchivoChip } from "@/app/components/visor-archivos";
+import ContactoDocente from "@/app/components/contacto-docente";
 import { CARD, Cargando, Chip, ErrorPanel, ROW, Vacio } from "@/app/components/ui";
-import { notaNumerica } from "@/app/lib/format";
+import { fechaCorta, notaNumerica } from "@/app/lib/format";
 import type { Archivo, Entrega, Materia, Material, Tarea } from "@/app/lib/types";
-import { buscarDocente, seguro, type Docente } from "../cargar-materias";
+import { seguro } from "@/app/lib/api-utils";
+import { buscarDocente, type Docente } from "../cargar-materias";
 import { etiquetaVencimiento, formatoLimite, parseFecha, tonoDe, type TareaItem } from "../../tareas/tarea-utils";
 
 function Dato({ icono: Icono, children }: { icono: typeof ClockIcon; children: React.ReactNode }) {
@@ -39,6 +41,7 @@ export default function MateriaDetailPage() {
     const [misEntregas, setMisEntregas] = useState<Entrega[]>([]);
     const [listaMateriales, setListaMateriales] = useState<Material[]>([]);
     const [adjuntos, setAdjuntos] = useState<Record<number, Archivo[]>>({});
+    const [alumno, setAlumno] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -58,8 +61,18 @@ export default function MateriaDetailPage() {
                     seguro("entregas", materias.entregasDeAlumno(materiaId, perfil.id)),
                 ]);
 
-                // Docente y adjuntos son secundarios: si fallan, la página se ve igual sin ellos
-                const lista = materialesData ?? [];
+                // Docente y adjuntos son secundarios: si fallan, la página se ve igual sin ellos.
+                // El material programado para más adelante (publicadaDesde en el futuro) no se muestra todavía.
+                const lista = (materialesData ?? [])
+                    .filter((m) => {
+                        const f = parseFecha(m.publicadaDesde);
+                        return !f || f.getTime() <= Date.now();
+                    })
+                    .sort(
+                        (a, b) =>
+                            (parseFecha(b.publicadaDesde)?.getTime() ?? 0) -
+                            (parseFecha(a.publicadaDesde)?.getTime() ?? 0)
+                    );
                 const [docenteData, archivosDe] = await Promise.all([
                     buscarDocente(materiaData.idProfesor).catch(() => null),
                     Promise.all(
@@ -69,6 +82,7 @@ export default function MateriaDetailPage() {
 
                 if (!activo) return;
                 setMateria(materiaData);
+                setAlumno((perfil.nombre ?? perfil.nombreUsuario ?? "").replace(/[._]+/g, " ").trim());
                 setDocente(docenteData);
                 setListaTareas(tareasData ?? []);
                 setMisEntregas(entregasData ?? []);
@@ -106,7 +120,6 @@ export default function MateriaDetailPage() {
                             : null,
                     };
                 })
-                // Pendientes primero (por fecha), después las ya entregadas
                 .sort((a, b) => {
                     if (Boolean(a.entrega) !== Boolean(b.entrega)) return a.entrega ? 1 : -1;
                     return (a.fecha?.getTime() ?? Infinity) - (b.fecha?.getTime() ?? Infinity);
@@ -147,13 +160,17 @@ export default function MateriaDetailPage() {
                 <Link href="/materias" className="hover:underline">
                     Materias
                 </Link>
+                {" / "}
+                <span aria-current="page" className="text-neutral-700 dark:text-neutral-300">
+                    {materia.nombre}
+                </span>
             </nav>
 
             <header className="flex items-start gap-4">
                 <div className="rounded-2xl bg-primary/10 p-3.5 text-primary">
                     <BookOpenIcon className="h-8 w-8" />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                     <h1 className="font-libertinus text-4xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
                         {materia.nombre}
                     </h1>
@@ -162,6 +179,16 @@ export default function MateriaDetailPage() {
                         <Dato icono={MapPinIcon}>{materia.aula || "Aula sin asignar"}</Dato>
                         <Dato icono={ClockIcon}>{materia.horario || "Horario a confirmar"}</Dato>
                     </p>
+                    {docente && (
+                        <div className="mt-3">
+                            <ContactoDocente
+                                email={docente.email}
+                                docente={docente.nombre}
+                                materia={materia.nombre}
+                                alumno={alumno}
+                            />
+                        </div>
+                    )}
                 </div>
             </header>
 
@@ -225,9 +252,19 @@ export default function MateriaDetailPage() {
                         <div className="space-y-2.5">
                             {listaMateriales.map((material) => (
                                 <div key={material.id} className={`${ROW} p-3.5`}>
-                                    <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
-                                        {material.titulo}
-                                    </h3>
+                                    <div className="flex flex-wrap items-start justify-between gap-x-3">
+                                        <h3 className="min-w-0 font-semibold text-neutral-900 dark:text-neutral-100">
+                                            <Link
+                                                href={`/material/${material.id}`}
+                                                className="text-primary hover:underline"
+                                            >
+                                                {material.titulo || "Sin título"}
+                                            </Link>
+                                        </h3>
+                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                                            {fechaCorta(parseFecha(material.publicadaDesde))}
+                                        </span>
+                                    </div>
                                     {material.descripcion && (
                                         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
                                             {material.descripcion}

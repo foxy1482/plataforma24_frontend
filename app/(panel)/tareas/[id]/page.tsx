@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
     ArrowUpTrayIcon,
+    ArrowUturnLeftIcon,
     CheckCircleIcon,
     ClockIcon,
     DocumentIcon,
@@ -15,7 +16,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { mensajeDeError, tareas, tareaArchivos, entregas, entregaArchivos, archivos, materias, auth, registrarError } from "@/app/lib/apiClient";
 import { ArchivoChip } from "@/app/components/visor-archivos";
-import { BTN_P, CARD, Cargando, Chip, ErrorPanel, LABEL, ROW } from "@/app/components/ui";
+import { BTN_P, BTN_R, CARD, Cargando, Chip, ErrorPanel, LABEL, ROW } from "@/app/components/ui";
 import { fechaHora, notaNumerica, notaTexto } from "@/app/lib/format";
 import type { Tarea, Archivo, Entrega } from "@/app/lib/types";
 import { etiquetaVencimiento, formatoLimite, parseFecha, tonoDe, type TareaItem } from "../tarea-utils";
@@ -38,9 +39,11 @@ export default function TareaDetailPage() {
     const [loading, setLoading] = useState(true);
     const [fallo, setFallo] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [anulando, setAnulando] = useState(false);
     const [aviso, setAviso] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [archivoEntrega, setArchivoEntrega] = useState<File | null>(null);
+    const [intento, setIntento] = useState(0); // sube al tocar "Reintentar" para volver a cargar
 
     useEffect(() => {
         if (!tareaId) return;
@@ -78,15 +81,15 @@ export default function TareaDetailPage() {
         return () => {
             activo = false;
         };
-    }, [tareaId]);
+    }, [tareaId, intento]);
 
     const handleEntregaSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // La entrega es única y no se puede modificar: se avisa antes de enviarla sin archivo.
+        // La entrega no se edita (solo se anula y se rehace): se avisa antes de enviarla sin archivo.
         if (
             !archivoEntrega &&
             !window.confirm(
-                "No adjuntaste ningún archivo. Después de entregar no vas a poder modificar la entrega. ¿Entregar igual?"
+                "No adjuntaste ningún archivo. Para cambiar la entrega vas a tener que anularla y volver a entregar. ¿Entregar igual?"
             )
         ) {
             return;
@@ -124,6 +127,33 @@ export default function TareaDetailPage() {
         }
     };
 
+    // "Desentregar": solo mientras no esté calificada (el backend también lo exige). Vuelve al formulario de entrega.
+    const anularEntrega = async () => {
+        if (!entrega || entrega.calificacion) return;
+        const plazo = tarea ? parseFecha(tarea.fechaEntrega) : null;
+        const pregunta = plazo && plazo < new Date()
+            ? "¿Anular tu entrega? El plazo ya venció: si volvés a entregar, quedará marcada como fuera de término."
+            : "¿Anular tu entrega? Vas a poder volver a entregar cuando quieras antes de que venza el plazo.";
+        if (!window.confirm(pregunta)) return;
+
+        setAnulando(true);
+        setError(null);
+        setAviso(null);
+        try {
+            await entregas.eliminar(entrega.id);
+            setEntrega(null);
+            setArchivosEntrega([]);
+            setAviso("Anulaste tu entrega. Podés volver a entregar.");
+        } catch (err) {
+            registrarError("Error al anular la entrega:", err);
+            setError(mensajeDeError(err, "No se pudo anular la entrega. Intentá de nuevo."));
+            // Si el docente la calificó mientras tanto, se recarga para mostrar la nota.
+            setIntento((n) => n + 1);
+        } finally {
+            setAnulando(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="mx-auto max-w-5xl space-y-6">
@@ -138,8 +168,27 @@ export default function TareaDetailPage() {
 
     if (fallo || !tarea) {
         return (
-            <div className="mx-auto max-w-5xl">
-                <ErrorPanel mensaje="No se pudo cargar la información de la tarea." />
+            <div className="mx-auto max-w-5xl space-y-4">
+                <ErrorPanel
+                    mensaje="No se pudo cargar la información de la tarea."
+                    onReintentar={() => setIntento((n) => n + 1)}
+                />
+                <Link href="/tareas" className="inline-block text-sm text-primary hover:underline">
+                    ← Volver a mis tareas
+                </Link>
+            </div>
+        );
+    }
+
+    // Tarea con publicación programada: el backend la devuelve, pero el alumno todavía no debe verla.
+    const publicada = parseFecha(tarea.publicadaDesde);
+    if (publicada && publicada > new Date() && !entrega) {
+        return (
+            <div className="mx-auto max-w-5xl space-y-4">
+                <ErrorPanel mensaje={`Esta tarea todavía no está disponible. Se publica el ${formatoLimite(publicada).toLowerCase()}.`} />
+                <Link href="/tareas" className="inline-block text-sm text-primary hover:underline">
+                    ← Volver a mis tareas
+                </Link>
             </div>
         );
     }
@@ -233,7 +282,13 @@ export default function TareaDetailPage() {
                             role="status"
                             className="mt-4 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400"
                         >
-                            <CheckCircleIcon className="h-5 w-5 shrink-0" /> {aviso}
+                            <CheckCircleIcon className="h-5 w-5 shrink-0" />
+                            <span>
+                                {aviso}{" "}
+                                <Link href="/tareas" className="font-semibold underline">
+                                    Volver a mis tareas
+                                </Link>
+                            </span>
                         </div>
                     )}
                     {error && (
@@ -292,10 +347,27 @@ export default function TareaDetailPage() {
                                     )}
                                 </div>
                             ) : (
-                                <div className={`${ROW} flex items-center gap-2 p-4 text-sm text-neutral-600 dark:text-neutral-300`}>
-                                    <ClockIcon className="h-5 w-5 shrink-0" />
-                                    Esperando la corrección de tu docente.
-                                </div>
+                                <>
+                                    <div className={`${ROW} flex items-center gap-2 p-4 text-sm text-neutral-600 dark:text-neutral-300`}>
+                                        <ClockIcon className="h-5 w-5 shrink-0" />
+                                        Esperando la corrección de tu docente.
+                                    </div>
+                                    <div>
+                                        <button
+                                            type="button"
+                                            onClick={anularEntrega}
+                                            disabled={anulando}
+                                            className={`${BTN_R} w-full`}
+                                        >
+                                            <ArrowUturnLeftIcon className="h-5 w-5" />
+                                            {anulando ? "Anulando entrega…" : "Anular entrega"}
+                                        </button>
+                                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+                                            Podés anularla mientras tu docente no la haya calificado, y volver a entregar
+                                            otro trabajo.
+                                        </p>
+                                    </div>
+                                </>
                             )}
                         </div>
                     ) : (

@@ -9,6 +9,7 @@ import ThemeToggle from "@/app/components/themetoggle";
 const RUTAS_PANEL = [
     "/dashboard",
     "/materias",
+    "/material",
     "/tareas",
     "/calificaciones",
     "/cursos",
@@ -22,7 +23,6 @@ const RUTAS_PANEL = [
 export default function Navbar() {
     const pathname = usePathname();
 
-    // Oculta esta barra global en el panel privado (tiene su propio menú)
     const enPanel = RUTAS_PANEL.some((r) => pathname === r || pathname?.startsWith(`${r}/`));
     if (enPanel) {
         return null;

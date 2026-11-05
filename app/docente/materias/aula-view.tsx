@@ -159,7 +159,6 @@ export default function AulaView() {
         }
     };
 
-    // Los cursos se piden recién cuando el docente abre la edición.
     const abrirEdicion = () => {
         setEditando(true);
         if (cursos) return;

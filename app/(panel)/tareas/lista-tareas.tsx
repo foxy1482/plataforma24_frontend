@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarIcon, CheckCircleIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { notaNumerica } from "@/app/lib/format";
 import {
     TONO_CLASES,
     etiquetaVencimiento,
@@ -61,7 +62,7 @@ export default function ListaTareas({ tareas, hoy }: { tareas: TareaItem[]; hoy:
                             role="tab"
                             aria-selected={activa}
                             onClick={() => setPestana(id)}
-                            className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
+                            className={`min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
                                 activa
                                     ? "bg-primary text-white shadow-sm"
                                     : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
@@ -108,10 +109,11 @@ function TarjetaTarea({
 }: {
     tarea: TareaItem;
     hoy: Date;
-    resumida?: boolean; // la "última entrega" no muestra la fecha límite
+    resumida?: boolean;
 }) {
     const tono = tonoDe(tarea, hoy);
     const entregada = tarea.entrega !== null;
+    const nota = notaNumerica(tarea.entrega?.calificacion);
 
     return (
         <Link href={`/tareas/${tarea.id}`} className={TARJETA}>
@@ -124,9 +126,11 @@ function TarjetaTarea({
                 >
                     {entregada && <CheckCircleIcon className="h-4 w-4" />}
                     {entregada
-                        ? tarea.entrega?.calificacion
-                            ? `Nota: ${tarea.entrega.calificacion}`
-                            : "Entregada"
+                        ? nota !== null
+                            ? `Nota ${nota}`
+                            : tarea.entrega?.calificacion
+                              ? "Corregida"
+                              : "Entregada · sin corregir"
                         : etiquetaVencimiento(tarea, hoy)}
                 </span>
             </div>

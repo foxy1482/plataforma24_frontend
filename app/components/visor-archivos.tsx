@@ -57,7 +57,9 @@ export async function descargarArchivo(archivo: ArchivoRef) {
         notificar(
             e instanceof ApiError && e.status === 403
                 ? "No tenés permiso para descargar este archivo."
-                : "No se pudo descargar el archivo."
+                : e instanceof ApiError && e.status === 404
+                  ? "Este archivo ya no está disponible en el servidor. Avisale a tu docente para que lo vuelva a subir."
+                  : "No se pudo descargar el archivo. Revisá tu conexión e intentá de nuevo."
         );
     }
 }
@@ -65,7 +67,7 @@ export async function descargarArchivo(archivo: ArchivoRef) {
 interface Carga {
     id: number;
     blob?: Blob;
-    url?: string; // solo imágenes y video
+    url?: string;
     error?: string;
 }
 
@@ -89,7 +91,9 @@ function useContenido(id: number, tipo: Tipo): Carga | null {
                     error:
                         e instanceof ApiError && e.status === 403
                             ? "No tenés permiso para ver este archivo."
-                            : "No se pudo abrir el archivo. Probá descargarlo.",
+                            : e instanceof ApiError && e.status === 404
+                              ? "Este archivo ya no está disponible en el servidor. Avisale a tu docente para que lo vuelva a subir."
+                              : "No se pudo abrir el archivo. Probá descargarlo.",
                 });
             }
         );
@@ -102,10 +106,7 @@ function useContenido(id: number, tipo: Tipo): Carga | null {
     return carga?.id === id ? carga : null;
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Vistas por tipo                                                           */
-/*  zoom 1 = ajustado al ancho; `ancho` = ancho útil del visor en px          */
-/* -------------------------------------------------------------------------- */
+// zoom 1 = ajustado al ancho; `ancho` = ancho útil del visor en px
 
 const MARGEN = 16;
 
@@ -320,10 +321,6 @@ function Mensaje({ children }: { children: React.ReactNode }) {
     return <p className="p-10 text-center text-sm text-neutral-500 dark:text-neutral-400">{children}</p>;
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Visor con barra de herramientas                                           */
-/* -------------------------------------------------------------------------- */
-
 const BTN_ICONO =
     "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-neutral-600 hover:bg-neutral-200 disabled:opacity-40 disabled:hover:bg-transparent dark:text-neutral-300 dark:hover:bg-neutral-700";
 
@@ -360,7 +357,7 @@ export function VisorContenido({
     const documento = useRef<HTMLDivElement>(null);
     const zoomActual = useRef(1);
     const anclaje = useRef<Anclaje | null>(null);
-    const cursor = useRef<Punto | null>(null); // última posición del mouse sobre el visor
+    const cursor = useRef<Punto | null>(null);
     const contenido = useContenido(archivo.id, tipo);
 
     // Cambia el zoom manteniendo fijo el punto `ancla` (coordenadas relativas al visor).
@@ -406,7 +403,6 @@ export function VisorContenido({
         el.scrollTop += d.top + MARGEN + a.fy * h - (s.top + a.ay);
     }, [zoom]);
 
-    // Ancho útil del visor (sin la barra de scroll), para ajustar el contenido
     useEffect(() => {
         const el = vista.current;
         if (!el) return;
@@ -536,10 +532,6 @@ export function VisorContenido({
     );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Ventana emergente + chip del archivo                                      */
-/* -------------------------------------------------------------------------- */
-
 function VisorModal({ archivo, onCerrar }: { archivo: ArchivoRef; onCerrar: () => void }) {
     const dialogo = useRef<HTMLDivElement>(null);
 
@@ -572,7 +564,6 @@ function VisorModal({ archivo, onCerrar }: { archivo: ArchivoRef; onCerrar: () =
     );
 }
 
-// Archivo adjunto: el botón principal abre el visor y el pequeño de la derecha lo descarga.
 export function ArchivoChip({ archivo, bloque = false }: { archivo: ArchivoRef; bloque?: boolean }) {
     const [abierto, setAbierto] = useState(false);
     const nombre = nombreDe(archivo);

@@ -8,6 +8,7 @@ import {
     TONO_PUNTO,
     celdasDelMes,
     claveDia,
+    etiquetaVencimiento,
     formatoMes,
     mismoDia,
     tonoDe,
@@ -17,10 +18,11 @@ import {
 const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 const BOTON =
-    "flex h-10 items-center justify-center rounded-xl border border-neutral-300 bg-white text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-700";
+    "flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-700";
 
 export default function Calendario({ tareas, hoy }: { tareas: TareaItem[]; hoy: Date }) {
     const [{ anio, mes }, setMes] = useState({ anio: hoy.getFullYear(), mes: hoy.getMonth() });
+    const [diaElegido, setDiaElegido] = useState<string | null>(null);
 
     const celdas = useMemo(() => celdasDelMes(anio, mes), [anio, mes]);
 
@@ -40,7 +42,10 @@ export default function Calendario({ tareas, hoy }: { tareas: TareaItem[]; hoy: 
     const irA = (delta: number) => {
         const fecha = new Date(anio, mes + delta, 1);
         setMes({ anio: fecha.getFullYear(), mes: fecha.getMonth() });
+        setDiaElegido(null);
     };
+
+    const tareasDelDiaElegido = diaElegido ? (porDia.get(diaElegido) ?? []) : [];
 
     return (
         <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
@@ -50,16 +55,19 @@ export default function Calendario({ tareas, hoy }: { tareas: TareaItem[]; hoy: 
                     {formatoMes(anio, mes)}
                 </h2>
                 <div className="flex gap-2">
-                    <button onClick={() => irA(-1)} aria-label="Mes anterior" className={`${BOTON} w-10`}>
+                    <button onClick={() => irA(-1)} aria-label="Mes anterior" className={`${BOTON} w-11`}>
                         <ChevronLeftIcon className="h-4 w-4" />
                     </button>
                     <button
-                        onClick={() => setMes({ anio: hoy.getFullYear(), mes: hoy.getMonth() })}
+                        onClick={() => {
+                            setMes({ anio: hoy.getFullYear(), mes: hoy.getMonth() });
+                            setDiaElegido(null);
+                        }}
                         className={`${BOTON} px-4`}
                     >
                         Hoy
                     </button>
-                    <button onClick={() => irA(1)} aria-label="Mes siguiente" className={`${BOTON} w-10`}>
+                    <button onClick={() => irA(1)} aria-label="Mes siguiente" className={`${BOTON} w-11`}>
                         <ChevronRightIcon className="h-4 w-4" />
                     </button>
                 </div>
@@ -78,13 +86,17 @@ export default function Calendario({ tareas, hoy }: { tareas: TareaItem[]; hoy: 
                 {celdas.map((fecha) => {
                     const fueraDelMes = fecha.getMonth() !== mes;
                     const esHoy = mismoDia(fecha, hoy);
-                    const delDia = porDia.get(claveDia(fecha)) ?? [];
+                    const clave = claveDia(fecha);
+                    const delDia = porDia.get(clave) ?? [];
+                    const elegido = diaElegido === clave;
 
                     return (
                         <div
                             key={fecha.getTime()}
-                            className={`min-h-14 rounded-xl border-2 p-1 sm:min-h-[5.5rem] sm:p-2 ${
-                                esHoy
+                            className={`relative min-h-14 rounded-xl border-2 p-1 sm:min-h-[5.5rem] sm:p-2 ${
+                                elegido
+                                    ? "border-primary bg-primary/20"
+                                    : esHoy
                                     ? "border-primary bg-primary/10"
                                     : fueraDelMes
                                       ? "border-transparent bg-neutral-50 dark:bg-neutral-800/60"
@@ -105,7 +117,16 @@ export default function Calendario({ tareas, hoy }: { tareas: TareaItem[]; hoy: 
                                 {fecha.getDate()}
                             </span>
 
-                            {/* Celular: solo puntos de color. Desde sm: etiquetas con el título. */}
+                            {delDia.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setDiaElegido(elegido ? null : clave)}
+                                    aria-pressed={elegido}
+                                    aria-label={`${fecha.getDate()}: ${delDia.length} ${delDia.length === 1 ? "tarea" : "tareas"}`}
+                                    className="absolute inset-0 rounded-xl sm:hidden"
+                                />
+                            )}
+
                             <div className="mt-1 flex flex-wrap gap-0.5 sm:hidden">
                                 {delDia.map((t) => (
                                     <span
@@ -130,6 +151,30 @@ export default function Calendario({ tareas, hoy }: { tareas: TareaItem[]; hoy: 
                     );
                 })}
             </div>
+
+            {tareasDelDiaElegido.length > 0 && (
+                <div className="mt-4 space-y-2 sm:hidden" aria-live="polite">
+                    {tareasDelDiaElegido.map((t) => (
+                        <Link
+                            key={t.id}
+                            href={`/tareas/${t.id}`}
+                            className="flex min-h-11 items-center justify-between gap-3 rounded-xl bg-neutral-100 p-3 dark:bg-neutral-900"
+                        >
+                            <span className="min-w-0">
+                                <span className="block truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                                    {t.titulo}
+                                </span>
+                                <span className="block truncate text-xs text-neutral-500 dark:text-neutral-400">
+                                    {t.materia}
+                                </span>
+                            </span>
+                            <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-medium ${TONO_CLASES[tonoDe(t, hoy)]}`}>
+                                {t.entrega ? "Entregada" : etiquetaVencimiento(t, hoy)}
+                            </span>
+                        </Link>
+                    ))}
+                </div>
+            )}
 
             <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-neutral-600 dark:text-neutral-300">
                 <Leyenda tono="ambar" texto="Vence esta semana" />

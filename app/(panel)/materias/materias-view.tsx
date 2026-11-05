@@ -28,7 +28,7 @@ function describirCurso(curso: Curso | null) {
 }
 
 function SkeletonCard() {
-    return <div className="h-36 animate-pulse rounded-2xl bg-neutral-200 dark:bg-neutral-800" />;
+    return <div className="h-60 animate-pulse rounded-2xl bg-neutral-200 dark:bg-neutral-800" />;
 }
 
 export default function MateriasView() {
@@ -42,7 +42,7 @@ export default function MateriasView() {
             .then(setData)
             .catch((e) => {
                 if (e instanceof ApiError && e.status === 401) {
-                    router.replace("/login"); // sesión vencida o sin iniciar
+                    router.replace("/login");
                     return;
                 }
                 registrarError(e);
@@ -69,7 +69,7 @@ export default function MateriasView() {
     }, [data, busqueda]);
 
     return (
-        <div className="mx-auto max-w-4xl space-y-8">
+        <div className="mx-auto max-w-6xl space-y-8">
             <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h1 className="font-libertinus text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">

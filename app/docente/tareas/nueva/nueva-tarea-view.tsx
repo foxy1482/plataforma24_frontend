@@ -23,7 +23,6 @@ import {
     INPUT,
     LABEL,
     ROW,
-    Vacio,
 } from "@/app/components/ui";
 import { datosDocente, invalidarDocente, materiaDe, type DatosDocente } from "../../datos";
 import SinMaterias from "@/app/components/sin-materias";

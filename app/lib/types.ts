@@ -1,12 +1,11 @@
-// Tipos de Plataforma 24, según los DTO de la API (camelCase).
 
 export interface Usuario {
     id: number;
-    numeroLegajo: string; // ej: "ALU-0001"
+    numeroLegajo: string;
     email: string;
     // /auth/profile/ lo devuelve como "nombre" y /usuarios/{id} como "nombreUsuario"
-    nombre?: string; // ej: "tomas.palavecino"
-    nombreUsuario?: string; // ej: "sonja.ur"
+    nombre?: string;
+    nombreUsuario?: string;
     idRol: number;
     rol?: string | null; // nombre del rol; solo viene en /auth/profile/
     idCurso: number | null;
@@ -17,8 +16,8 @@ export interface Materia {
     nombre: string;
     idProfesor: number;
     idCurso: number;
-    horario?: string; // ej: "Lun · 10:20 – 12:40"
-    aula?: string; // ej: "Laboratorio de Informática 1"
+    horario?: string;
+    aula?: string;
 }
 
 export interface Tarea {
@@ -48,7 +47,6 @@ export interface Curso {
 // Enum Sexo del backend, serializado por posición: 0 Masculino, 1 Femenino.
 export type Sexo = 0 | 1;
 
-// Campos editables de los datos personales (DatosPersonalesDTO del backend).
 export interface DatosPersonalesPayload {
     nombre: string;
     apellido: string;
@@ -94,8 +92,6 @@ export interface Archivo {
     fechaSubida: string;
 }
 
-
-// Cualquier fila con id, para listas donde solo importa eso.
 export interface Registro {
     id: number;
     [clave: string]: unknown;

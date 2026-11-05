@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowDownTrayIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { notaNumerica, numero, ordinal, promedio } from "@/app/lib/format";
+import { notaNumerica, numero, ordinal, parseFecha, promedio } from "@/app/lib/format";
 import { estadoPeriodo, listarPeriodos, periodoActual } from "@/app/lib/periodos";
 import type { BoletinResumen, PeriodoApi } from "@/app/lib/types";
 import {
@@ -19,7 +19,6 @@ import {
     ROW,
     Select,
     Tabs,
-    Vacio,
 } from "@/app/components/ui";
 import { datosDocente, materiaDe, type DatosDocente } from "../datos";
 import { notificar } from "@/app/components/avisos";
@@ -77,8 +76,9 @@ export default function PlanillaView() {
     const tareasDelBimestre = useMemo(() => {
         if (!materia) return [];
         if (!periodo) return materia.tareas.filter((t) => t.estado !== "programada");
-        const inicio = new Date(periodo.fechaInicio).getTime();
-        const fin = new Date(periodo.fechaFin).getTime() + 86_400_000;
+        const inicio = parseFecha(periodo.fechaInicio, false)?.getTime();
+        const fin = parseFecha(periodo.fechaFin)?.getTime();
+        if (inicio === undefined || fin === undefined) return [];
         return materia.tareas.filter(
             (t) =>
                 t.estado !== "programada" &&
@@ -203,7 +203,8 @@ export default function PlanillaView() {
             .map((fila) => fila.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";"))
             .join("\n");
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(new Blob([`﻿${csv}`], { type: "text/csv" }));
+        // El BOM hace que Excel interprete el CSV como UTF-8 (tildes y \u00F1).
+        link.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv" }));
         link.download = `notas-${materia.materia.nombre}-${materia.cursoNombre}-bim${bimestre}.csv`;
         link.click();
         URL.revokeObjectURL(link.href);

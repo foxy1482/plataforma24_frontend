@@ -40,10 +40,8 @@ export interface Boletin {
     aprobadas: { cantidad: number; total: number; bimestre: number } | null;
 }
 
-// 8.1851 -> "8,19"
 export const formatoNota = (n: number) => numero(n, 2);
 
-// Arma la vista del boletín con lo que devuelven /periodos y /boletines
 export function armarBoletin(args: {
     hoy: Date;
     periodos: PeriodoApi[];

@@ -53,7 +53,6 @@ export async function cargarCalificaciones(): Promise<CalificacionesData> {
     };
 }
 
-// "5º año, 2ª división"
 export function describirCurso(curso: Curso | null) {
     const anio = leer(curso, "año", "anio", "ano");
     const division = leer(curso, "division");

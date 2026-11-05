@@ -13,6 +13,7 @@ import {
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
 import { notaNumerica, numero, promedio } from "@/app/lib/format";
+import { nombreDe } from "@/app/lib/sesion";
 import { CARD, Cargando, Chip, ErrorPanel, ROW, Stat, Vacio } from "@/app/components/ui";
 import { cargarTareas, type TareasData } from "../tareas/cargar-tareas";
 import {
@@ -27,8 +28,8 @@ import {
 const MAX_PROXIMAS = 5;
 const MAX_NOTAS = 4;
 
-function primerNombre(usuario: { nombreUsuario?: string; nombre?: string; email: string }) {
-    const base = (usuario.nombreUsuario ?? usuario.nombre ?? usuario.email).split(/[._@\s]+/)[0];
+function primerNombre(nombreCompleto: string) {
+    const base = nombreCompleto.split(/[._@\s]+/)[0] ?? "";
     return base.charAt(0).toUpperCase() + base.slice(1);
 }
 
@@ -46,7 +47,7 @@ function Encabezado({ titulo, href, accion }: { titulo: string; href?: string; a
             {href && (
                 <Link
                     href={href}
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                    className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-primary hover:underline"
                 >
                     {accion}
                     <ArrowRightIcon className="h-4 w-4" />
@@ -82,10 +83,10 @@ export default function DashboardView() {
     const [error, setError] = useState(false);
 
     const cargar = useCallback(() => {
-        Promise.all([cargarTareas(), api.auth.getProfile()])
-            .then(([tareas, perfil]) => {
+        Promise.all([cargarTareas(), api.auth.getProfile().then((p) => nombreDe(p.id, p))])
+            .then(([tareas, nombreCompleto]) => {
                 setData(tareas);
-                setNombre(primerNombre(perfil));
+                setNombre(primerNombre(nombreCompleto));
             })
             .catch((e) => {
                 if (e instanceof ApiError && e.status === 401) {
@@ -252,13 +253,16 @@ export default function DashboardView() {
                                                             </p>
                                                         </div>
                                                         <span
-                                                            className={`font-libertinus text-3xl font-bold ${
+                                                            className={`shrink-0 font-libertinus text-3xl font-bold ${
                                                                 nota >= 6
                                                                     ? "text-neutral-900 dark:text-neutral-100"
                                                                     : "text-amber-600 dark:text-amber-400"
                                                             }`}
                                                         >
                                                             {nota}
+                                                            <span className="ml-0.5 text-sm font-semibold text-neutral-500 dark:text-neutral-400">
+                                                                /10
+                                                            </span>
                                                         </span>
                                                     </Link>
                                                 </li>
@@ -283,7 +287,7 @@ export default function DashboardView() {
                                             <li key={m.id}>
                                                 <Link
                                                     href={`/materias/${m.id}`}
-                                                    className={`${ROW} flex items-center gap-3 p-3 transition-colors hover:border-primary/60`}
+                                                    className={`${ROW} flex min-h-12 items-center gap-3 p-3 transition-colors hover:border-primary/60`}
                                                 >
                                                     <BookOpenIcon className="h-5 w-5 shrink-0 text-primary" />
                                                     <span className="min-w-0 flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-100">
@@ -291,8 +295,8 @@ export default function DashboardView() {
                                                     </span>
                                                     {n > 0 && (
                                                         <Chip tono="azul">
-                                                            <ClockIcon className="h-3.5 w-3.5" />
-                                                            {n}
+                                                            <ClockIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                                                            {n} {n === 1 ? "pendiente" : "pendientes"}
                                                         </Chip>
                                                     )}
                                                 </Link>

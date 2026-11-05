@@ -38,7 +38,6 @@ function horaDe(fecha: Date | null) {
     return `${String(fecha.getHours()).padStart(2, "0")}:${String(fecha.getMinutes()).padStart(2, "0")}`;
 }
 
-// Texto corto sobre el plazo: "Vence en 3 días", "Venció hace 2 días"
 function textoPlazo(t: TareaDocente, hoy: Date) {
     if (!t.vence) return "Sin fecha de entrega";
     const dias = diasEntre(hoy, t.vence);

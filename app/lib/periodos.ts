@@ -5,7 +5,7 @@ import type { PeriodoApi } from "./types";
 export type EstadoPeriodo = "cerrado" | "en-curso" | "proximo";
 
 export function estadoPeriodo(periodo: PeriodoApi, hoy: Date): EstadoPeriodo {
-    const inicio = parseFecha(periodo.fechaInicio);
+    const inicio = parseFecha(periodo.fechaInicio, false);
     const fin = parseFecha(periodo.fechaFin);
     if (fin && hoy.getTime() > fin.getTime()) return "cerrado";
     if (inicio && hoy.getTime() >= inicio.getTime()) return "en-curso";
@@ -36,7 +36,11 @@ export function listarPeriodos(ciclo: number) {
             ciclo,
             api.periodos.listar(ciclo).then(
                 (l) => [...(l ?? [])].sort((a, b) => a.bimestre - b.bimestre),
-                () => []
+                () => {
+                    // Un fallo no se cachea: el próximo pedido vuelve a intentar.
+                    cache.delete(ciclo);
+                    return [];
+                }
             )
         );
     }

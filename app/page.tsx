@@ -25,12 +25,11 @@ export default function Home() {
     }, [images.length]);
 
     if (isChecking) {
-        return null; // Evita mostrar la vista de inicio mientras valida la sesión
+        return null;
     }
 
     return (
         <div className="relative flex-1 flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-gray-50 px-4 transition-colors duration-300 dark:from-gray-950 dark:to-gray-900">
-            {/* Carrusel de fondo con 3 imágenes con efecto borroso */}
             <div className="absolute inset-0 z-0">
                 {images.map((src, index) => (
                     <motion.div
