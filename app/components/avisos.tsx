@@ -1,25 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExclamationCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ExclamationCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
+
+type TipoAviso = "error" | "exito";
 
 interface Aviso {
     id: number;
     texto: string;
+    tipo: TipoAviso;
 }
 
 const oyentes = new Set<(aviso: Aviso) => void>();
 let contador = 0;
 
-// Muestra un aviso de error no bloqueante (reemplaza a window.alert).
-export function notificar(texto: string): void {
-    const aviso = { id: ++contador, texto };
+// Muestra un aviso no bloqueante (reemplaza a window.alert). Por defecto es de error; para confirmar algo
+// que salió bien: notificar("Listo", "exito").
+export function notificar(texto: string, tipo: TipoAviso = "error"): void {
+    const aviso = { id: ++contador, texto, tipo };
     oyentes.forEach((oyente) => oyente(aviso));
 }
 
 const DURACION_MS = 7000;
 
-// Se monta una sola vez en el layout raíz.
 export function Avisos() {
     const [avisos, setAvisos] = useState<Aviso[]>([]);
 
@@ -46,9 +49,17 @@ export function Avisos() {
             {avisos.map((aviso) => (
                 <div
                     key={aviso.id}
-                    className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-red-200 bg-white p-3 text-sm text-neutral-800 shadow-lg dark:border-red-900 dark:bg-neutral-900 dark:text-neutral-100"
+                    className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border bg-white p-3 text-sm text-neutral-800 shadow-lg dark:bg-neutral-900 dark:text-neutral-100 ${
+                        aviso.tipo === "exito"
+                            ? "border-green-200 dark:border-green-900"
+                            : "border-red-200 dark:border-red-900"
+                    }`}
                 >
-                    <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                    {aviso.tipo === "exito" ? (
+                        <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                    ) : (
+                        <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                    )}
                     <p className="min-w-0 flex-1">{aviso.texto}</p>
                     <button
                         type="button"

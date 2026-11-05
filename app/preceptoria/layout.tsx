@@ -5,10 +5,12 @@ import {
     AcademicCapIcon,
     CalendarDaysIcon,
     ChatBubbleLeftRightIcon,
+    ChatBubbleOvalLeftEllipsisIcon,
     ClipboardDocumentListIcon,
     DocumentTextIcon,
     HomeIcon,
     IdentificationIcon,
+    Squares2X2Icon,
     UserCircleIcon,
     UsersIcon,
 } from "@heroicons/react/24/outline";
@@ -39,6 +41,7 @@ export default function PreceptoriaLayout({ children }: { children: React.ReactN
             links: [
                 { name: "Inicio", href: "/preceptoria", icon: HomeIcon },
                 { name: "Legajos de alumnos", href: "/preceptoria/legajos", icon: IdentificationIcon },
+                { name: "Cursos", href: "/preceptoria/cursos", icon: Squares2X2Icon },
                 { name: "Mi perfil", href: "/preceptoria/perfil", icon: UserCircleIcon },
             ],
         },
@@ -58,11 +61,13 @@ export default function PreceptoriaLayout({ children }: { children: React.ReactN
         {
             titulo: "Administración",
             papeles: ["directivo" as const],
-            links: [{ name: "Usuarios", href: "/admin/usuarios", icon: UsersIcon }],
+            // Solo autoridades y administradores (papel "directivo"): el preceptor no gestiona cuentas.
+            links: [{ name: "Usuarios", href: "/preceptoria/usuarios", icon: UsersIcon }],
         },
         {
             titulo: "Comunidad",
             links: [
+                { name: "Foro", href: "/preceptoria/foro", icon: ChatBubbleOvalLeftEllipsisIcon },
                 {
                     name: "Moderación del foro",
                     href: "/preceptoria/moderacion",

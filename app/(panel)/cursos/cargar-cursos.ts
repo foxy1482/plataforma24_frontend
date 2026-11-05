@@ -1,11 +1,11 @@
 import * as api from "@/app/lib/apiClient";
 import { normalizar } from "@/app/lib/format";
-import { nombreDe, nombreCurso, ordenarCursos, turnoDe } from "@/app/lib/sesion";
+import { cicloVigente, cursosDelCicloActual, nombreDe, nombreCurso, turnoDe } from "@/app/lib/sesion";
 import type { Curso, Materia } from "@/app/lib/types";
 
 export interface DivisionItem {
     curso: Curso;
-    nombre: string; // "5º 2ª división"
+    nombre: string;
     turno: string;
     aula?: string;
     mia: boolean;
@@ -13,8 +13,8 @@ export interface DivisionItem {
 
 export interface AnioItem {
     anio: number;
-    nombre: string; // "5to año"
-    ciclo: string; // "Ciclo Superior · Informática"
+    nombre: string;
+    ciclo: string;
     divisiones: DivisionItem[];
 }
 
@@ -44,7 +44,8 @@ export async function cargarCursos(): Promise<CursosData> {
         api.cursos.listar(),
     ]);
 
-    const lista = ordenarCursos(cursos ?? []);
+    // Solo el ciclo lectivo vigente (más el curso propio, aunque sea de otro ciclo): sin divisiones repetidas.
+    const lista = cursosDelCicloActual(cursos ?? [], [perfil.idCurso]);
     const anios = new Map<number, DivisionItem[]>();
 
     for (const curso of lista) {
@@ -69,7 +70,7 @@ export async function cargarCursos(): Promise<CursosData> {
                 ciclo: anio <= 2 ? "Ciclo Básico" : "Ciclo Superior · Informática",
                 divisiones,
             })),
-        cicloLectivo: lista[0]?.cicloLectivo ?? new Date().getFullYear(),
+        cicloLectivo: cicloVigente(cursos ?? []),
         idCursoPropio: perfil.idCurso ?? null,
         totalDivisiones: lista.length,
     };
@@ -82,9 +83,20 @@ export async function cargarDivision(idCurso: number): Promise<DetalleDivision> 
         api.usuarios.porCurso(idCurso).catch(() => null),
     ]);
 
+    // Un alumno no puede leer los datos personales de un docente (403): se parte del usuario para
+    // que, sin ellos, se muestre su nombre de usuario en lugar de "Sin nombre".
     const docentes = new Map<number, Promise<string>>();
     const docenteDe = (id: number) => {
-        if (!docentes.has(id)) docentes.set(id, nombreDe(id).catch(() => "Sin asignar"));
+        if (!docentes.has(id)) {
+            docentes.set(
+                id,
+                api.usuarios
+                    .porLegajo(id)
+                    .catch(() => undefined)
+                    .then((usuario) => nombreDe(id, usuario))
+                    .catch(() => "Sin asignar")
+            );
+        }
         return docentes.get(id)!;
     };
 

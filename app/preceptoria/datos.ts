@@ -1,6 +1,6 @@
 import * as api from "@/app/lib/apiClient";
 import { listarPeriodos } from "@/app/lib/periodos";
-import { cargarSesion, ordenarCursos, type Sesion } from "@/app/lib/sesion";
+import { cargarSesion, cicloVigente, cursosDelCicloActual, type Sesion } from "@/app/lib/sesion";
 import type { Curso, PeriodoApi } from "@/app/lib/types";
 
 export interface DatosPreceptoria {
@@ -14,10 +14,10 @@ export interface DatosPreceptoria {
 async function cargar(): Promise<DatosPreceptoria> {
     const hoy = new Date();
     const [sesion, lista] = await Promise.all([cargarSesion(), api.cursos.listar()]);
-    const cursos = ordenarCursos(lista ?? []);
-    const ciclo = cursos[0]?.cicloLectivo ?? hoy.getFullYear();
+    // Todo el panel trabaja con el ciclo lectivo vigente: los selects y el menú no repiten cursos de años anteriores.
+    const ciclo = cicloVigente(lista ?? []);
+    const cursos = cursosDelCicloActual(lista ?? [], [sesion.usuario.idCurso]);
 
-    // El curso del propio usuario queda primero: es el que más va a usar.
     const propio = cursos.findIndex((c) => c.id === sesion.usuario.idCurso);
     if (propio > 0) cursos.unshift(cursos.splice(propio, 1)[0]);
 

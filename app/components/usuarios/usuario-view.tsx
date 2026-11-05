@@ -23,13 +23,13 @@ import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
 import { fechaNacimientoTexto, sexoTexto } from "@/app/lib/datos-personales";
 import { edadDe } from "@/app/lib/format";
 import { AVISO_LEGAJO_NO_RENOVADO, prefijoDeLegajo, prefijoNuevoDeLegajo } from "@/app/lib/legajo";
-import { cursoLargo, inicialesDeNombre } from "@/app/lib/sesion";
+import { cursoLargo, cursosDelCicloActual, etiquetaCurso, inicialesDeNombre } from "@/app/lib/sesion";
 import { cargarUsuario, type DetalleUsuario } from "./cargar-usuario";
 
 // Roles de autoridad (3 a 6) y preceptor (7): dan acceso a datos de otras personas.
 const esRolAdministrativo = (idRol: number) => idRol >= 3 && idRol <= 7;
 
-export default function UsuarioView() {
+export default function UsuarioView({ base }: { base: string }) {
     const router = useRouter();
     const { id } = useParams<{ id: string }>();
     const idUsuario = Number(id);
@@ -101,6 +101,8 @@ export default function UsuarioView() {
     const nombre = datos ? `${datos.nombre} ${datos.apellido}` : alias.replace(/[._]+/g, " ");
     const nombreRol = (idRol: number) => roles.find((r) => r.id === idRol)?.nombre ?? `Rol ${idRol}`;
     const cursoActual = cursos.find((c) => c.id === usuario.idCurso) ?? null;
+    // Solo el ciclo vigente, más el curso que ya tiene (y el elegido) para que el valor seleccionado exista.
+    const opcionesCurso = cursosDelCicloActual(cursos, [usuario.idCurso, Number(curso) || null]);
 
     const cambios: { idRol?: number; idCurso?: number; email?: string; nombreUsuario?: string } = {};
     if (!esYo && Number(rol) !== usuario.idRol) cambios.idRol = Number(rol);
@@ -165,7 +167,7 @@ export default function UsuarioView() {
         setEliminando(true);
         try {
             await api.usuarios.eliminar(usuario.id);
-            router.replace("/admin/usuarios");
+            router.replace(base);
         } catch (err) {
             registrarError(err);
             notificar(mensajeDeError(err, "No se pudo eliminar el usuario."));
@@ -178,7 +180,7 @@ export default function UsuarioView() {
     return (
         <div className="mx-auto max-w-4xl space-y-5">
             <nav aria-label="Ruta" className="text-sm text-neutral-500 dark:text-neutral-400">
-                <Link href="/admin/usuarios" className="hover:underline">
+                <Link href={base} className="hover:underline">
                     Usuarios
                 </Link>{" "}
                 / {nombre}
@@ -259,9 +261,9 @@ export default function UsuarioView() {
                                 {usuario.idCurso == null && (
                                     <option value="">Sin curso</option>
                                 )}
-                                {cursos.map((c) => (
+                                {opcionesCurso.map((c) => (
                                     <option key={c.id} value={c.id}>
-                                        {cursoLargo(c)}
+                                        {etiquetaCurso(c, opcionesCurso)}
                                     </option>
                                 ))}
                             </select>

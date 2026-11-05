@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PencilSquareIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
-import { cursoLargo, nombreCurso, ordenarCursos } from "@/app/lib/sesion";
+import { cursoLargo, cursosDelCicloActual, etiquetaCurso, nombreCurso, ordenarCursos } from "@/app/lib/sesion";
 import type { Curso, Materia, Usuario } from "@/app/lib/types";
 import { notificar } from "@/app/components/avisos";
 import MateriaForm, { type ProfesorOpcion } from "@/app/components/materia-form";
@@ -51,6 +51,10 @@ export default function MateriasView() {
     const usuarioPorId = useMemo(
         () => new Map((datos?.usuarios ?? []).map((u) => [u.id, u])),
         [datos]
+    );
+    const cursosFiltro = useMemo(
+        () => cursosDelCicloActual(datos?.cursos ?? [], [Number(filtroCurso) || null]),
+        [datos, filtroCurso]
     );
     const cursoPorId = useMemo(() => new Map((datos?.cursos ?? []).map((c) => [c.id, c])), [datos]);
 
@@ -190,9 +194,9 @@ export default function MateriasView() {
                     <div className="flex flex-wrap items-center gap-3">
                         <Select label="Filtrar por curso" valor={filtroCurso} onChange={setFiltroCurso}>
                             <option value="">Todos los cursos</option>
-                            {datos.cursos.map((c) => (
+                            {cursosFiltro.map((c) => (
                                 <option key={c.id} value={c.id}>
-                                    {cursoLargo(c)}
+                                    {etiquetaCurso(c, cursosFiltro)}
                                 </option>
                             ))}
                         </Select>

@@ -1,6 +1,12 @@
 "use client";
 
-import { BookOpenIcon, HomeIcon, IdentificationIcon, UsersIcon } from "@heroicons/react/24/outline";
+import {
+    BookOpenIcon,
+    HomeIcon,
+    IdentificationIcon,
+    Squares2X2Icon,
+    UsersIcon,
+} from "@heroicons/react/24/outline";
 import PanelLayout from "@/app/components/panel-layout";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -17,6 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             links: [
                 { name: "Ir a preceptoría", href: "/preceptoria", icon: HomeIcon },
                 { name: "Legajos", href: "/preceptoria/legajos", icon: IdentificationIcon },
+                { name: "Cursos", href: "/preceptoria/cursos", icon: Squares2X2Icon },
             ],
         },
     ];

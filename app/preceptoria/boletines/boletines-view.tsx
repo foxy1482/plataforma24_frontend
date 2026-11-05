@@ -7,7 +7,7 @@ import { CheckBadgeIcon, PrinterIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
 import { coma, INASISTENCIAS_POR_BIMESTRE, numero, ordinal } from "@/app/lib/format";
-import { cursoLargo } from "@/app/lib/sesion";
+import { etiquetaCurso } from "@/app/lib/sesion";
 import type { BoletinResumen } from "@/app/lib/types";
 import {
     BTN_G,
@@ -216,7 +216,7 @@ export default function BoletinesView() {
                     >
                         {datos.cursos.map((c) => (
                             <option key={c.id} value={c.id}>
-                                {cursoLargo(c)}
+                                {etiquetaCurso(c, datos.cursos)}
                             </option>
                         ))}
                     </Select>

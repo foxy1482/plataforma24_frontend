@@ -7,7 +7,7 @@ import * as api from "@/app/lib/apiClient";
 import { alumnosDeCurso } from "@/app/lib/alumnos";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
 import { coma, isoFecha, INASISTENCIAS_PERMITIDAS } from "@/app/lib/format";
-import { cursoLargo, nombreCurso } from "@/app/lib/sesion";
+import { etiquetaCurso, nombreCurso } from "@/app/lib/sesion";
 import type { EstadoAsistencia, Planilla } from "@/app/lib/types";
 import {
     BTN_G,
@@ -291,7 +291,7 @@ export default function ListaView() {
                     >
                         {datos.cursos.map((c) => (
                             <option key={c.id} value={c.id}>
-                                {cursoLargo(c)}
+                                {etiquetaCurso(c, datos.cursos)}
                             </option>
                         ))}
                     </Select>

@@ -3,7 +3,7 @@
 import { useId, useRef, useState } from "react";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
-import { cursoLargo, ordenarCursos } from "@/app/lib/sesion";
+import { cursosDelCicloActual, etiquetaCurso } from "@/app/lib/sesion";
 import type { Curso, Materia } from "@/app/lib/types";
 import { BTN_G, BTN_P, INPUT, LABEL } from "@/app/components/ui";
 
@@ -51,7 +51,8 @@ export default function MateriaForm({
     const [guardando, setGuardando] = useState(false);
 
     const conProfesor = profesores !== undefined;
-    const ordenados = ordenarCursos(cursos);
+    // Solo el ciclo vigente, más el curso que ya tiene la materia (si se edita una de un ciclo anterior).
+    const ordenados = cursosDelCicloActual(cursos, [materia?.idCurso, idCursoInicial, Number(curso) || null]);
 
     const validar = () => {
         const e: Partial<Record<Campo, string>> = {};
@@ -182,7 +183,7 @@ export default function MateriaForm({
                     </option>
                     {ordenados.map((c) => (
                         <option key={c.id} value={c.id}>
-                            {cursoLargo(c)}
+                            {etiquetaCurso(c, ordenados)}
                         </option>
                     ))}
                 </select>

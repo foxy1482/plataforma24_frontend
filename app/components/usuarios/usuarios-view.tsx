@@ -8,7 +8,7 @@ import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
 import { normalizar } from "@/app/lib/format";
 import { AVISO_LEGAJO_NO_RENOVADO, prefijoDeLegajo, prefijoNuevoDeLegajo } from "@/app/lib/legajo";
-import { cursoLargo, inicialesDeNombre, ordenarCursos } from "@/app/lib/sesion";
+import { cursosDelCicloActual, etiquetaCurso, inicialesDeNombre, ordenarCursos } from "@/app/lib/sesion";
 import type { Curso, Rol, Usuario } from "@/app/lib/types";
 import { Avatar, BTN_G, BTN_R, CARD, Cargando, ErrorPanel, Select, Vacio } from "@/app/components/ui";
 
@@ -19,7 +19,9 @@ interface Datos {
     cursos: Curso[];
 }
 
-export default function UsuariosView() {
+// `base` es la ruta de la sección donde se monta ("/admin/usuarios" o "/preceptoria/usuarios"): los enlaces al
+// detalle salen de ahí. Así las autoridades, que se quedan en /preceptoria, gestionan usuarios sin pasar por /admin.
+export default function UsuariosView({ base }: { base: string }) {
     const [datos, setDatos] = useState<Datos | null>(null);
     const [error, setError] = useState(false);
     const [aviso, setAviso] = useState<{ texto: string; ok: boolean } | null>(null);
@@ -58,6 +60,14 @@ export default function UsuariosView() {
                     normalizar(`${u.nombreUsuario ?? u.nombre ?? ""} ${u.email} ${u.numeroLegajo}`).includes(q)
             );
     }, [datos, texto, filtroRol, filtroCurso]);
+
+    // Los selects ofrecen solo el ciclo lectivo vigente; el de cada fila conserva además el curso que ya tiene
+    // asignado la persona (aunque sea de otro ciclo) para que el valor seleccionado exista.
+    const cursosFiltro = useMemo(
+        () => cursosDelCicloActual(datos?.cursos ?? [], [Number(filtroCurso) || null]),
+        [datos, filtroCurso]
+    );
+    const opcionesCurso = (idCurso: number | null) => cursosDelCicloActual(datos?.cursos ?? [], [idCurso]);
 
     const actualizar = (id: number, cambios: Partial<Usuario>) =>
         setDatos((d) => d && { ...d, usuarios: d.usuarios.map((u) => (u.id === id ? { ...u, ...cambios } : u)) });
@@ -181,9 +191,9 @@ export default function UsuariosView() {
                         <Select label="Filtrar por curso" valor={filtroCurso} onChange={setFiltroCurso}>
                             <option value="">Todos los cursos</option>
                             <option value="sin">Sin curso</option>
-                            {datos.cursos.map((c) => (
+                            {cursosFiltro.map((c) => (
                                 <option key={c.id} value={c.id}>
-                                    {cursoLargo(c)}
+                                    {etiquetaCurso(c, cursosFiltro)}
                                 </option>
                             ))}
                         </Select>
@@ -218,7 +228,7 @@ export default function UsuariosView() {
                                         <Avatar iniciales={inicialesDeNombre(nombre.replace(/[._]+/g, " "))} id={u.id} />
                                         <div className="min-w-0 flex-1 basis-48">
                                             <Link
-                                                href={`/admin/usuarios/${u.id}`}
+                                                href={`${base}/${u.id}`}
                                                 className="block truncate text-sm font-semibold text-neutral-900 hover:text-primary hover:underline dark:text-neutral-100"
                                             >
                                                 {nombre}
@@ -247,14 +257,14 @@ export default function UsuariosView() {
                                             <option value="" disabled>
                                                 Sin curso
                                             </option>
-                                            {datos.cursos.map((c) => (
+                                            {opcionesCurso(u.idCurso).map((c, _, opciones) => (
                                                 <option key={c.id} value={c.id}>
-                                                    {cursoLargo(c)}
+                                                    {etiquetaCurso(c, opciones)}
                                                 </option>
                                             ))}
                                         </Select>
                                         <Link
-                                            href={`/admin/usuarios/${u.id}`}
+                                            href={`${base}/${u.id}`}
                                             aria-label={`Editar cuenta y datos de ${nombre}`}
                                             className={`${BTN_G} h-10 px-3`}
                                         >

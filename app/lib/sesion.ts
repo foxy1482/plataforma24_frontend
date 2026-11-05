@@ -8,7 +8,7 @@ export interface Sesion {
     usuario: Usuario;
     rol: string | null;
     papel: Papel;
-    nombre: string; // "Gustavo Ferreyra"
+    nombre: string;
     iniciales: string;
     // Administrador: puede entrar a todos los paneles (el resto queda en el de su rol).
     esAdmin: boolean;
@@ -18,11 +18,13 @@ export interface Sesion {
 // La Autoridad (3) es personal directivo y se queda en preceptoría, igual que el preceptor.
 const ROLES_ADMIN = [4, 5, 6];
 
+// Alumno (1) y AdminAlumno (4) cuentan como alumnos de un curso.
+export const ROLES_ALUMNO = [1, 4];
+
 export function esAdminRol(idRol: number) {
     return ROLES_ADMIN.includes(idRol);
 }
 
-// ¿Puede esta sesión estar en un panel pensado para estos papeles?
 export function puedeEntrar(sesion: Pick<Sesion, "papel" | "esAdmin">, papeles: Papel[]) {
     return sesion.esAdmin || papeles.includes(sesion.papel);
 }
@@ -47,14 +49,13 @@ export function papelDe(idRol: number, nombreRol?: string): Papel {
     return "otro";
 }
 
-// Nombre para mostrar: datos personales si están, si no el nombre de usuario.
 export async function nombreDe(idUsuario: number, usuario?: Usuario) {
     try {
         const d = await api.datos.porLegajo(idUsuario);
         const completo = [d?.nombre, d?.apellido].filter(Boolean).join(" ").trim();
         if (completo) return completo;
     } catch {
-        // sin datos personales
+        // Sin datos personales cargados (o sin permiso para leerlos): se usa el alias.
     }
     const alias = usuario?.nombre ?? usuario?.nombreUsuario ?? "";
     return alias.replace(/[._]+/g, " ").trim() || "Sin nombre";
@@ -97,7 +98,6 @@ export function rutaDePapel(papel: Papel) {
     return "/dashboard";
 }
 
-// "5º 2ª"
 export function nombreCurso(curso: Curso | null | undefined) {
     if (!curso) return "Sin curso";
     return `${curso.año}º ${curso.division}ª`;
@@ -113,14 +113,56 @@ export function turnoDe(curso: Curso | null | undefined) {
     return TURNOS.find((x) => normalizar(x) === n) ?? String(t ?? "");
 }
 
-// "5º 2ª · Turno mañana"
+// "5º 2ª · Turno mañana · Ciclo 2026": el ciclo va siempre, para no confundir cursos iguales de años distintos.
 export function cursoLargo(curso: Curso | null | undefined) {
+    if (!curso) return nombreCurso(curso);
     const turno = turnoDe(curso);
-    return [nombreCurso(curso), turno && `Turno ${turno}`].filter(Boolean).join(" · ");
+    return [
+        nombreCurso(curso),
+        turno && `Turno ${turno}`,
+        curso.cicloLectivo != null && `Ciclo ${curso.cicloLectivo}`,
+    ]
+        .filter(Boolean)
+        .join(" · ");
 }
 
 export function ordenarCursos(lista: Curso[]) {
+    const turnoIdx = (c: Curso) => TURNOS.indexOf(turnoDe(c));
     return [...lista].sort(
-        (a, b) => Number(a.año) - Number(b.año) || Number(a.division) - Number(b.division)
+        (a, b) =>
+            Number(a.año) - Number(b.año) ||
+            Number(a.division) - Number(b.division) ||
+            turnoIdx(a) - turnoIdx(b) ||
+            Number(b.cicloLectivo) - Number(a.cicloLectivo)
     );
+}
+
+export function cicloActual() {
+    return new Date().getFullYear();
+}
+
+// Ciclo que se muestra en los selects: el actual o, si todavía no se cargó ningún curso de ese año, el más
+// reciente que exista (así el select nunca queda vacío).
+export function cicloVigente(cursos: Curso[]) {
+    const actual = cicloActual();
+    if (cursos.length === 0 || cursos.some((c) => Number(c.cicloLectivo) === actual)) return actual;
+    return Math.max(...cursos.map((c) => Number(c.cicloLectivo)));
+}
+
+// Cursos para elegir en un select: solo los del ciclo vigente, sin duplicados y ordenados.
+// `incluirIds` fuerza a incluir cursos de otros ciclos (el que ya tiene asignado el usuario, la materia o el
+// filtro que se está editando) para que el valor seleccionado siga existiendo entre las opciones.
+export function cursosDelCicloActual(cursos: Curso[], incluirIds: (number | null | undefined)[] = []) {
+    const unicos = [...new Map(cursos.map((c) => [c.id, c])).values()];
+    const ciclo = cicloVigente(unicos);
+    const forzados = new Set(incluirIds.filter((id): id is number => id != null));
+    return ordenarCursos(unicos.filter((c) => Number(c.cicloLectivo) === ciclo || forzados.has(c.id)));
+}
+
+// Texto de una opción de select. Si otra opción de la lista tiene exactamente la misma descripción
+// (no debería pasar dentro de un ciclo), se desambigua con el aula.
+export function etiquetaCurso(curso: Curso, lista: Curso[]) {
+    const base = cursoLargo(curso);
+    const repetida = lista.some((c) => c.id !== curso.id && cursoLargo(c) === base);
+    return repetida && curso.aula ? `${base} · Aula ${curso.aula}` : base;
 }

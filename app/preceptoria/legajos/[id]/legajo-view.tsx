@@ -55,7 +55,8 @@ export default function LegajoView() {
     const cargar = useCallback(() => {
         datosPreceptoria()
             .then((d) => {
-                setEsAutoridad(d.sesion.esAdmin);
+                // Autoridades y administradores (papel "directivo") gestionan la cuenta desde /preceptoria/usuarios.
+                setEsAutoridad(d.sesion.papel === "directivo");
                 return cargarLegajo(idAlumno, d.ciclo);
             })
             .then((valor) => setCargado({ id: idAlumno, valor }))
@@ -169,7 +170,7 @@ export default function LegajoView() {
                 </div>
                 <div className="flex flex-wrap gap-2 print:hidden">
                     {esAutoridad && (
-                        <Link href={`/admin/usuarios/${idAlumno}`} className={BTN_G}>
+                        <Link href={`/preceptoria/usuarios/${idAlumno}`} className={BTN_G}>
                             Administrar cuenta
                         </Link>
                     )}

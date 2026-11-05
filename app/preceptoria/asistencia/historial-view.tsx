@@ -9,7 +9,7 @@ import { alumnosDeCurso } from "@/app/lib/alumnos";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
 import { coma, isoFecha, INASISTENCIAS_PERMITIDAS, parseFecha } from "@/app/lib/format";
 import { estadoPeriodo } from "@/app/lib/periodos";
-import { cursoLargo, nombreCurso } from "@/app/lib/sesion";
+import { etiquetaCurso, nombreCurso } from "@/app/lib/sesion";
 import type { EstadoAsistencia } from "@/app/lib/types";
 import {
     BTN_G,
@@ -200,7 +200,8 @@ export default function HistorialView() {
             .map((fila) => fila.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";"))
             .join("\n");
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(new Blob([`﻿${csv}`], { type: "text/csv" }));
+        // El BOM hace que Excel interprete el CSV como UTF-8 (tildes y \u00F1).
+        link.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv" }));
         link.download = `asistencia-${nombreCurso(curso)}-${desde}-${hasta}.csv`;
         link.click();
         URL.revokeObjectURL(link.href);
@@ -287,7 +288,7 @@ export default function HistorialView() {
                 >
                     {datos.cursos.map((c) => (
                         <option key={c.id} value={c.id}>
-                            {cursoLargo(c)}
+                            {etiquetaCurso(c, datos.cursos)}
                         </option>
                     ))}
                 </Select>

@@ -7,7 +7,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { alumnosDeCurso } from "@/app/lib/alumnos";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
 import { normalizar } from "@/app/lib/format";
-import { cursoLargo, nombreCurso } from "@/app/lib/sesion";
+import { etiquetaCurso, nombreCurso } from "@/app/lib/sesion";
 import type { DatosPersonales } from "@/app/lib/types";
 import {
     Avatar,
@@ -127,7 +127,7 @@ export default function LegajosView() {
             >
                 {datos.cursos.map((c) => (
                     <option key={c.id} value={c.id}>
-                        {cursoLargo(c)}
+                        {etiquetaCurso(c, datos.cursos)}
                     </option>
                 ))}
             </Select>

@@ -34,10 +34,6 @@ const BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://localhost:707
 
 const TOKEN_COOKIE = "token";
 
-/* -------------------------------------------------------------------------- */
-/*  Núcleo                                                                    */
-/* -------------------------------------------------------------------------- */
-
 // El backend responde los errores como ProblemDetails ({ title, detail }); los de validación
 // de modelo traen además { errors: { campo: [mensajes] } }.
 function mensajeDeCuerpo(cuerpo: string): string {
@@ -68,7 +64,6 @@ function mensajeDeCuerpo(cuerpo: string): string {
 export class ApiError extends Error {
     status: number;
     body: string;
-    // Texto legible para el usuario; vacío si el servidor no explicó el error.
     mensaje: string;
 
     constructor(status: number, body: string, statusText: string) {
@@ -264,10 +259,6 @@ function aArchivos(lista: Lista<VinculoArchivo>): Lista<Archivo> {
     );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Auth                                                                      */
-/* -------------------------------------------------------------------------- */
-
 export const auth = {
     login: (credentials: { email: string; password: string }) =>
         post<{ token?: string; access_token?: string }>("/auth/login/", credentials),
@@ -275,10 +266,8 @@ export const auth = {
     registro: (credentials: { email: string; nombre: string; password: string }) =>
         post<unknown>("/auth/registro/", credentials),
 
-    // Usuario dueño del token
     getProfile: () => get<Usuario>("/auth/profile/"),
 
-    // Manejo del token en cookie
     setToken: (token: string) => {
         sesionCambiada();
         setCookie(TOKEN_COOKIE, token, {
@@ -294,10 +283,6 @@ export const auth = {
     },
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Usuarios                                                                  */
-/* -------------------------------------------------------------------------- */
-
 export const usuarios = {
     listar: () => get<Lista<Usuario>>("/usuarios/"),
     // El backend recibe el id numérico del usuario (no el legajo "ALU-0001")
@@ -310,10 +295,6 @@ export const usuarios = {
     ) => patch<Usuario>(`/usuarios/${legajo}`, data),
     eliminar: (legajo: number | string) => del<null>(`/usuarios/${legajo}`),
 };
-
-/* -------------------------------------------------------------------------- */
-/*  Datos personales                                                          */
-/* -------------------------------------------------------------------------- */
 
 export const datos = {
     porLegajo: (legajo: number | string) => get<DatosPersonales>(`/datos/usuario/${legajo}`),
@@ -329,10 +310,6 @@ export const datos = {
     eliminar: (legajo: number | string) => del<null>(`/datos/usuario/${legajo}`),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Roles                                                                     */
-/* -------------------------------------------------------------------------- */
-
 export const roles = {
     listar: () => get<Lista<Rol>>("/roles/"),
     porNumero: (numero: number) => get<Rol>(`/roles/${numero}`),
@@ -342,27 +319,32 @@ export const roles = {
     eliminar: (numero: number) => del<null>(`/roles/${numero}`),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Cursos                                                                    */
-/* -------------------------------------------------------------------------- */
+// El turno viaja como texto en el cuerpo de crear/modificar y vuelve igual en GET /cursos.
+export type TurnoCurso = "manana" | "tarde" | "noche";
+
+export interface NuevoCurso {
+    año: number; // 1 a 6
+    division: number; // 1 a 12
+    turno: TurnoCurso;
+    aula?: string | null;
+    cicloLectivo: number;
+}
+
+export type CambiosCurso = Partial<NuevoCurso>;
 
 export const cursos = {
     listar: () => get<Lista<Curso>>("/cursos/"),
     porNumero: (numero: number) => get<Curso>(`/cursos/${numero}`),
-    // El backend usa enums numéricos: ano 1-6 y turno 0-2 (un valor como "M" da 400).
+    // En la query el backend usa enums numéricos: ano 1-6 y turno 0-2 (un valor como "M" da 400).
     porAnoYTurno: (ano: number, turno: number) =>
         get<Lista<Curso>>("/cursos", { ano, turno }),
-    crear: (data: Record<string, unknown>) => post<Curso>("/cursos/", data),
-    modificar: (
-        numero: number,
-        data: Record<string, unknown>
-    ) => patch<Curso>(`/cursos/${numero}`, data),
+    crear: (data: NuevoCurso) => post<Curso>("/cursos/", data),
+    modificar: (numero: number, data: CambiosCurso) => patch<null>(`/cursos/${numero}`, data),
     eliminar: (numero: number) => del<null>(`/cursos/${numero}`),
+    // Asigna varios alumnos sin curso de una vez (todo o nada). Máximo 200 por pedido.
+    asignarUsuarios: (numero: number, idUsuarios: number[]) =>
+        post<{ asignados: number }>(`/cursos/${numero}/usuarios`, { idUsuarios }),
 };
-
-/* -------------------------------------------------------------------------- */
-/*  Materias                                                                  */
-/* -------------------------------------------------------------------------- */
 
 export interface NuevaMateria {
     nombre: string;
@@ -390,14 +372,9 @@ export const materias = {
     modificar: (numero: number, data: CambiosMateria) =>
         patch<null>(`/materias/${numero}`, data),
     eliminar: (numero: number) => del<null>(`/materias/${numero}`),
-    // Entregas que hizo un alumno dentro de una materia
     entregasDeAlumno: (materiaId: number, legajo: number | string) =>
         get<Lista<Entrega>>(`/materias/${materiaId}/entregas/alumno/${legajo}`),
 };
-
-/* -------------------------------------------------------------------------- */
-/*  Tareas (+ archivos adjuntos de la tarea)                                  */
-/* -------------------------------------------------------------------------- */
 
 export const tareas = {
     listar: () => get<Lista<Tarea>>("/tareas/"),
@@ -422,16 +399,11 @@ export const tareaArchivos = {
         del<null>("/tareas/archivos", { params: { idTarea, idArchivo } }),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Archivos                                                                  */
-/* -------------------------------------------------------------------------- */
-
 export const archivos = {
     listar: () => get<Lista<Archivo>>("/archivos/"),
     porNumero: (numero: number) => get<Archivo>(`/archivos/${numero}`),
     porNombre: (nombre: string) => get<Lista<Archivo>>("/archivos", { nombre }),
     porUsuario: (idUsuario: number) => get<Lista<Archivo>>("/archivos", { idUsuario }),
-    // Sube un File (multipart, campo "archivo")
     subir: (file: File) => {
         const form = new FormData();
         form.append("archivo", file);
@@ -443,10 +415,6 @@ export const archivos = {
         patch<Archivo>(`/archivos/${numero}`, data),
     eliminar: (numero: number) => del<null>(`/archivos/${numero}`),
 };
-
-/* -------------------------------------------------------------------------- */
-/*  Material de estudio (+ archivos)                                          */
-/* -------------------------------------------------------------------------- */
 
 export const materiales = {
     listar: () => get<Lista<Material>>("/materiales/"),
@@ -470,10 +438,6 @@ export const materialArchivos = {
         del<null>("/materiales/archivos", { params: { idMaterial, idArchivo } }),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Entregas (+ archivos)                                                     */
-/* -------------------------------------------------------------------------- */
-
 export const entregas = {
     porAlumno: (legajo: number | string) => get<Lista<Entrega>>(`/entregas/alumno/${legajo}`),
     porTarea: (numTarea: number) => get<Lista<Entrega>>(`/entregas/tarea/${numTarea}`),
@@ -489,16 +453,10 @@ export const entregaArchivos = {
         aArchivos(await get<Lista<VinculoArchivo>>("/entregas/archivos", { idEntrega })),
     vincular: (data: Record<string, unknown>) =>
         post<unknown>("/entregas/archivos/", data),
-    // Un archivo puntual de una entrega
     quitarArchivo: (idEntrega: number, idArchivo: number) =>
         del<null>("/entregas/archivos", { params: { idEntrega, idArchivo } }),
-    // Todo el registro de archivos de la entrega
     quitarTodos: (numero: number) => del<null>(`/entregas/archivos/${numero}`),
 };
-
-/* -------------------------------------------------------------------------- */
-/*  Periodos (bimestres del ciclo lectivo)                                    */
-/* -------------------------------------------------------------------------- */
 
 export const periodos = {
     listar: (ciclo?: number) => get<Lista<PeriodoApi>>("/periodos", { ciclo }),
@@ -509,12 +467,7 @@ export const periodos = {
     eliminar: (id: number) => del<null>(`/periodos/${id}`),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Asistencias                                                               */
-/* -------------------------------------------------------------------------- */
-
 export const asistencias = {
-    // Crea la planilla del día si todavía no existe
     abrir: (idCurso: number, fecha: string) =>
         post<unknown>("/asistencias/abrir", { idCurso, fecha }),
     // fecha en formato "2026-10-28"; sin fecha devuelve la de hoy
@@ -533,10 +486,6 @@ export const asistencias = {
         get<ResumenAsistencia>(`/asistencias/alumno/${idAlumno}/resumen`, { ciclo }),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Boletines                                                                 */
-/* -------------------------------------------------------------------------- */
-
 export const boletines = {
     porAlumno: (idAlumno: number, ciclo?: number) =>
         get<Lista<BoletinResumen>>(`/boletines/alumno/${idAlumno}`, { ciclo }),
@@ -550,17 +499,12 @@ export const boletines = {
         post<unknown>("/boletines/generar", { idAlumno, idPeriodo }),
     generarCurso: (idCurso: number, idPeriodo: number) =>
         post<unknown>("/boletines/generar-curso", { idCurso, idPeriodo }),
-    // Carga la nota de una materia dentro del boletín (planilla del docente)
     cargarNota: (
         idBoletin: number,
         idMateria: number,
         data: { nota?: number | null; observacion?: string | null }
     ) => patch<unknown>(`/boletines/${idBoletin}/notas/${idMateria}`, data),
 };
-
-/* -------------------------------------------------------------------------- */
-/*  Foro                                                                      */
-/* -------------------------------------------------------------------------- */
 
 export const foro = {
     temas: (idCurso?: number) => get<Lista<ForoTema>>("/foro/temas", { idCurso }),
