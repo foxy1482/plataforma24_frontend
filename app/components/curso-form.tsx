@@ -177,7 +177,7 @@ export default function CursoForm({
             }}
             className="space-y-5"
         >
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                     <label htmlFor={`${id}-anio`} className={`${LABEL} mb-1.5 block`}>
                         Año
@@ -251,10 +251,10 @@ export default function CursoForm({
             </div>
             {msg("division")}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <label htmlFor={`${id}-aula`} className={`${LABEL} mb-1.5 block`}>
-                        Aula <span className="font-normal normal-case text-neutral-400">(opcional)</span>
+                        Aula <span className="font-normal normal-case text-neutral-500">(opcional)</span>
                     </label>
                     <input
                         ref={refAula}

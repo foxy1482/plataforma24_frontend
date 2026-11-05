@@ -212,7 +212,7 @@ export default function DetalleView() {
                 </div>
             </header>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Stat
                     label="Entregaron"
                     valor={
@@ -269,7 +269,7 @@ export default function DetalleView() {
                                 />
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div>
                                     <label className={`${LABEL} mb-1.5 block`} htmlFor="d-fecha">
                                         Fecha de entrega

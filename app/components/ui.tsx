@@ -134,13 +134,14 @@ export function Tabs<T extends string | number>({
             {opciones.map((o) => (
                 <button
                     key={String(o.valor)}
+                    type="button"
                     role="tab"
                     aria-selected={o.valor === valor}
                     onClick={() => onChange(o.valor)}
-                    className={`h-8 rounded-lg px-3 text-xs font-semibold transition-colors ${
+                    className={`h-10 rounded-lg px-3 text-xs font-semibold transition-colors sm:h-8 ${
                         o.valor === valor
                             ? "bg-primary text-white"
-                            : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                            : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
                     }`}
                 >
                     {o.label}

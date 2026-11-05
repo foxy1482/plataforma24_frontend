@@ -65,7 +65,7 @@ export function Avisos() {
                         type="button"
                         aria-label="Cerrar aviso"
                         onClick={() => setAvisos((prev) => prev.filter((a) => a.id !== aviso.id))}
-                        className="shrink-0 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+                        className="shrink-0 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200"
                     >
                         <XMarkIcon className="h-4 w-4" />
                     </button>

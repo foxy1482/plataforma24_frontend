@@ -7,6 +7,14 @@
     --font-libertinus: 'Libertinus Serif';
 }
 
+/* #043AC2 sirve de fondo (texto blanco encima) pero como color de texto sobre fondo oscuro da ~2:1;
+   en modo oscuro el texto de marca usa una variante más clara. */
+.dark .text-primary,
+.dark .hover\:text-primary:hover,
+.dark .hover\:text-primary\/80:hover {
+    color: #7aa2ff;
+}
+
 @font-face {
     font-family: 'Libertinus Serif';
     font-weight: 600;

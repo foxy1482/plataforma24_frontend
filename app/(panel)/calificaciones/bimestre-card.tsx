@@ -118,7 +118,7 @@ export default function BimestreCard({
                                                 </p>
                                             </td>
                                             <td className="px-1 py-3 text-center font-libertinus text-lg font-bold text-neutral-900 dark:text-neutral-100">
-                                                {fila.nota ?? <span className="text-neutral-400 dark:text-neutral-600">—</span>}
+                                                {fila.nota ?? <span className="text-neutral-500 dark:text-neutral-600">—</span>}
                                             </td>
                                             <td className="px-3 py-3">
                                                 <span

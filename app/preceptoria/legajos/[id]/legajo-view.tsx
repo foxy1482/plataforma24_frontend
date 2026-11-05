@@ -345,7 +345,7 @@ export default function LegajoView() {
                                 Todavía no hay boletines generados.
                             </p>
                         ) : (
-                            <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
                                 {legajo.boletines.map((b) => (
                                     <Link
                                         key={b.idBoletin}
@@ -360,7 +360,7 @@ export default function LegajoView() {
                                             {numero(b.promedio ?? null)}
                                         </p>
                                         <p
-                                            className={`text-xs ${b.materiasDesaprobadas > 0 ? "text-amber-600 dark:text-amber-400" : "text-neutral-500 dark:text-neutral-400"}`}
+                                            className={`text-xs ${b.materiasDesaprobadas > 0 ? "text-amber-700 dark:text-amber-400" : "text-neutral-500 dark:text-neutral-400"}`}
                                         >
                                             {b.materiasDesaprobadas > 0
                                                 ? `${b.materiasDesaprobadas} desaprobadas`

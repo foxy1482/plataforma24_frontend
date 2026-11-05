@@ -136,7 +136,7 @@ export default function CursosView() {
                                 </button>
 
                                 {abierto && (
-                                    <div className="grid gap-3 px-4 pb-5 sm:grid-cols-2 sm:px-5">
+                                    <div className="grid grid-cols-1 gap-3 px-4 pb-5 sm:grid-cols-2 sm:px-5">
                                         {anio.divisiones.map((d) => (
                                             <DivisionCard key={d.curso.id} division={d} />
                                         ))}

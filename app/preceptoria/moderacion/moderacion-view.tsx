@@ -426,7 +426,7 @@ export default function ModeracionView() {
                                         <button
                                             onClick={() => quitar(p)}
                                             aria-label={`Quitar ${p.palabra}`}
-                                            className="shrink-0 text-neutral-400 hover:text-red-500"
+                                            className="shrink-0 text-neutral-500 hover:text-red-500"
                                         >
                                             <TrashIcon className="h-4 w-4" />
                                         </button>

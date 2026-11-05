@@ -160,7 +160,7 @@ function NuevoDebate({
                     <label htmlFor="debate-titulo" className={LABEL}>
                         Título
                     </label>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                         {titulo.length}/{TITULO_MAX}
                     </span>
                 </div>
@@ -181,7 +181,7 @@ function NuevoDebate({
                     <label htmlFor="debate-mensaje" className={LABEL}>
                         Primer mensaje
                     </label>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                         {mensaje.length}/{MENSAJE_MAX}
                     </span>
                 </div>

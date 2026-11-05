@@ -251,7 +251,7 @@ export default function BoletinesView() {
                                 : `${pendientesDocentes} ${pendientesDocentes === 1 ? "materia" : "materias"} con notas pendientes`}
                         </p>
                     </div>
-                    <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                         {materias.map((m) => {
                             const completa = m.cargadas >= m.total && m.total > 0;
                             return (
@@ -422,7 +422,7 @@ export default function BoletinesView() {
                                                 {numero(r.promedio ?? null)}
                                             </td>
                                             <td
-                                                className={`px-3 py-2.5 ${r.materiasDesaprobadas > 0 ? "font-semibold text-amber-600 dark:text-amber-400" : "text-neutral-500 dark:text-neutral-400"}`}
+                                                className={`px-3 py-2.5 ${r.materiasDesaprobadas > 0 ? "font-semibold text-amber-700 dark:text-amber-400" : "text-neutral-500 dark:text-neutral-400"}`}
                                             >
                                                 {r.materiasDesaprobadas}
                                             </td>

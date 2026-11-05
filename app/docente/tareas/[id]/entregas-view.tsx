@@ -252,7 +252,7 @@ export default function EntregasView() {
                 </div>
             </header>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Stat
                     label="Entregaron"
                     valor={
@@ -396,7 +396,7 @@ export default function EntregasView() {
                                                         {f.nota === null ? "Corregir" : "Revisar"}
                                                     </Link>
                                                 ) : (
-                                                    <span className="text-xs text-neutral-400">—</span>
+                                                    <span className="text-xs text-neutral-500">—</span>
                                                 )}
                                             </td>
                                         </tr>

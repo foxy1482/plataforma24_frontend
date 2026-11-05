@@ -158,7 +158,7 @@ export default function TareaDetailPage() {
         return (
             <div className="mx-auto max-w-5xl space-y-6">
                 <Cargando className="h-28" />
-                <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
                     <Cargando className="h-80" />
                     <Cargando className="h-80" />
                 </div>
@@ -251,7 +251,7 @@ export default function TareaDetailPage() {
                 )}
             </header>
 
-            <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
                 <section className={`${CARD} p-5 sm:p-6`}>
                     <h2 className="font-libertinus text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                         Consigna
@@ -323,7 +323,7 @@ export default function TareaDetailPage() {
                                                 className={`font-libertinus text-5xl font-bold leading-none ${
                                                     nota >= 6
                                                         ? "text-neutral-900 dark:text-neutral-100"
-                                                        : "text-amber-600 dark:text-amber-400"
+                                                        : "text-amber-700 dark:text-amber-400"
                                                 }`}
                                             >
                                                 {nota}

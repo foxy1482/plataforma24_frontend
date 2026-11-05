@@ -131,7 +131,7 @@ export default function MateriaDetailPage() {
         return (
             <div className="mx-auto max-w-5xl space-y-6">
                 <Cargando className="h-28" />
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <Cargando className="h-80" />
                     <Cargando className="h-80" />
                 </div>
@@ -192,7 +192,7 @@ export default function MateriaDetailPage() {
                 </div>
             </header>
 
-            <div className="grid items-start gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
                 <section className={`${CARD} p-5 sm:p-6`}>
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <h2 className="flex items-center gap-2.5 font-libertinus text-2xl font-bold text-neutral-900 dark:text-neutral-100">

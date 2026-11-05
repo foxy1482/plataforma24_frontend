@@ -29,7 +29,7 @@ export default function Home() {
     }
 
     return (
-        <div className="relative flex-1 flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-gray-50 px-4 transition-colors duration-300 dark:from-gray-950 dark:to-gray-900">
+        <main className="relative flex-1 flex items-center justify-center overflow-hidden bg-gradient-to-b from-white to-gray-50 px-4 transition-colors duration-300 dark:from-gray-950 dark:to-gray-900">
             <div className="absolute inset-0 z-0">
                 {images.map((src, index) => (
                     <motion.div
@@ -41,7 +41,7 @@ export default function Home() {
                     >
                         <Image
                             src={src}
-                            alt={`Fondo ${index + 1}`}
+                            alt=""
                             fill
                             priority={index === 0}
                             className="object-cover blur-xs scale-105"
@@ -73,19 +73,11 @@ export default function Home() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link href="/login">
-                            <button className="w-full sm:w-auto bg-primary text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-                                Iniciar Sesión
-                            </button>
-                        </Link>
-                        <Link href="/registro">
-                            <button className="w-full sm:w-auto bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/30 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-                                Registrarse
-                            </button>
-                        </Link>
+                        <Link href="/login" className="w-full sm:w-auto bg-primary text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-center">Iniciar sesión</Link>
+                        <Link href="/registro" className="w-full sm:w-auto bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/30 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-center">Registrarse</Link>
                     </div>
                 </motion.div>
             </div>
-        </div>
+        </main>
     );
 }

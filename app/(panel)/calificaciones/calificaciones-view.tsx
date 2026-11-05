@@ -123,12 +123,12 @@ export default function CalificacionesView() {
                 />
             ) : !data ? (
                 <>
-                    <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <Bloque className="h-28" />
                         <Bloque className="h-28" />
                         <Bloque className="h-28" />
                     </div>
-                    <div className="grid items-start gap-4 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
                         <Bloque className="h-24" />
                         <Bloque className="h-24" />
                         <Bloque className="h-96" />
@@ -137,7 +137,7 @@ export default function CalificacionesView() {
                 </>
             ) : (
                 <>
-                    <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div className={TARJETA}>
                             <p className={ETIQUETA}>
                                 Promedio anual
@@ -189,7 +189,7 @@ export default function CalificacionesView() {
                             Todavía no tenés materias cargadas.
                         </p>
                     ) : (
-                        <div className="grid items-start gap-4 lg:grid-cols-2">
+                        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
                             {data.bimestres.map((bimestre, i) => (
                                 <BimestreCard
                                     key={bimestre.numero}

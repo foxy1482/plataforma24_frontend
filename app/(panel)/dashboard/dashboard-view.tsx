@@ -159,7 +159,7 @@ export default function DashboardView() {
                     {data ? `${saludo(data.hoy)}, ${nombre}` : "Inicio"}
                 </h1>
                 {data ? (
-                    <p className="mt-2 capitalize text-neutral-500 dark:text-neutral-400">
+                    <p className="mt-2 first-letter:uppercase text-neutral-500 dark:text-neutral-400">
                         {formatoHoy(data.hoy)}
                     </p>
                 ) : (
@@ -174,7 +174,7 @@ export default function DashboardView() {
                             <Cargando key={i} className="h-24" />
                         ))}
                     </div>
-                    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+                    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
                         <Cargando className="h-96" />
                         <Cargando className="h-96" />
                     </div>
@@ -193,9 +193,9 @@ export default function DashboardView() {
                         <Stat
                             label="Vencen en 7 días"
                             valor={resumen.estaSemana}
-                            color={resumen.estaSemana > 0 ? "text-amber-600 dark:text-amber-400" : undefined}
+                            color={resumen.estaSemana > 0 ? "text-amber-700 dark:text-amber-400" : undefined}
                         />
-                        <Stat label="Entregadas" valor={resumen.entregadas} sub={`de ${data.tareas.length} tareas`} />
+                        <Stat label="Entregadas" valor={resumen.entregadas} sub={`de ${data.tareas.length} tarea${data.tareas.length === 1 ? "" : "s"}`} />
                         <Stat
                             label="Promedio de tareas"
                             valor={numero(resumen.promedio, 1)}
@@ -203,7 +203,7 @@ export default function DashboardView() {
                         />
                     </div>
 
-                    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+                    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
                         <div className="space-y-6">
                             <section className={`${CARD} p-5 sm:p-6`}>
                                 <Encabezado titulo="Próximas entregas" href="/tareas" accion="Ver todas" />
@@ -256,7 +256,7 @@ export default function DashboardView() {
                                                             className={`shrink-0 font-libertinus text-3xl font-bold ${
                                                                 nota >= 6
                                                                     ? "text-neutral-900 dark:text-neutral-100"
-                                                                    : "text-amber-600 dark:text-amber-400"
+                                                                    : "text-amber-700 dark:text-amber-400"
                                                             }`}
                                                         >
                                                             {nota}

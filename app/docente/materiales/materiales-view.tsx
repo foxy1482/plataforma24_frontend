@@ -417,7 +417,7 @@ export default function MaterialesView() {
                                     type="button"
                                     aria-label={`Quitar ${f.name}`}
                                     onClick={() => setArchivos((prev) => prev.filter((_, j) => j !== i))}
-                                    className="text-neutral-400 hover:text-red-500"
+                                    className="text-neutral-500 hover:text-red-500"
                                 >
                                     <XMarkIcon className="h-4 w-4" />
                                 </button>

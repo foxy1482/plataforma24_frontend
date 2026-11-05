@@ -196,7 +196,7 @@ export default function InicioPreceptoriaView() {
     return (
         <div className="mx-auto max-w-5xl space-y-6">
             <header>
-                <p className="text-sm capitalize text-neutral-500 dark:text-neutral-400">{fechaTexto}</p>
+                <p className="text-sm first-letter:uppercase text-neutral-500 dark:text-neutral-400">{fechaTexto}</p>
                 <h1 className="font-libertinus text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
                     Buen día, {nombrePila}
                 </h1>
@@ -207,7 +207,7 @@ export default function InicioPreceptoriaView() {
                     Asistencia de hoy
                 </h2>
                 {!hoy ? (
-                    <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 3 }).map((_, i) => (
                             <Cargando key={i} className="h-44" />
                         ))}
@@ -215,7 +215,7 @@ export default function InicioPreceptoriaView() {
                 ) : hoy.length === 0 ? (
                     <Vacio>No hay cursos cargados todavía.</Vacio>
                 ) : (
-                    <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
                         {hoy.map((h) => {
                             const tomada = h.total > 0;
                             return (
@@ -326,7 +326,7 @@ export default function InicioPreceptoriaView() {
                                                     />
                                                 </div>
                                                 <span
-                                                    className={`whitespace-nowrap text-xs font-semibold ${alto ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}`}
+                                                    className={`whitespace-nowrap text-xs font-semibold ${alto ? "text-red-600 dark:text-red-400" : "text-amber-700 dark:text-amber-400"}`}
                                                 >
                                                     {coma(r.total)} / {INASISTENCIAS_PERMITIDAS}
                                                 </span>

@@ -210,7 +210,7 @@ export default function NuevaTareaView() {
                         />
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label className={`${LABEL} mb-1.5 block`} htmlFor="f-fe">
                                 Fecha de entrega
@@ -259,7 +259,7 @@ export default function NuevaTareaView() {
                             </button>
                         </div>
                         {programar && (
-                            <div className="mt-3.5 grid gap-4 sm:grid-cols-2">
+                            <div className="mt-3.5 grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className={`${LABEL} mb-1.5 block`} htmlFor="f-pd">
                                         Visible desde

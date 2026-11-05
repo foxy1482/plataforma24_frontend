@@ -6,7 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 import {
     AcademicCapIcon,
     ArrowRightOnRectangleIcon,
+    Bars3Icon,
     MagnifyingGlassIcon,
+    XMarkIcon,
 } from "@heroicons/react/24/outline";
 import ThemeToggle from "@/app/components/themetoggle";
 import { Avatar, ErrorPanel, LABEL } from "@/app/components/ui";
@@ -60,6 +62,7 @@ export default function PanelLayout({
     const [sesion, setSesion] = useState<Sesion | null>(null);
     const [falloSesion, setFalloSesion] = useState(false);
     const [texto, setTexto] = useState("");
+    const [menuAbierto, setMenuAbierto] = useState(false);
 
     useEffect(() => {
         cargarSesion()
@@ -94,6 +97,16 @@ export default function PanelLayout({
         <div className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
             <header className="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
                 <div className="flex flex-wrap items-center gap-3 px-4 py-2.5 sm:px-6">
+                    <button
+                        type="button"
+                        onClick={() => setMenuAbierto((abierto) => !abierto)}
+                        aria-expanded={menuAbierto}
+                        aria-controls="menu-del-panel"
+                        aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
+                        className="-ml-2 flex h-11 w-11 items-center justify-center rounded-xl text-neutral-700 hover:bg-neutral-100 lg:hidden dark:text-neutral-200 dark:hover:bg-neutral-800"
+                    >
+                        {menuAbierto ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+                    </button>
                     <Link href={grupos[0]?.links[0]?.href ?? "/"} className="flex items-center gap-2">
                         <AcademicCapIcon className="h-7 w-7 text-primary" />
                         <span className="font-libertinus text-xl font-bold text-neutral-900 dark:text-neutral-100">
@@ -165,8 +178,9 @@ export default function PanelLayout({
 
             <div className="flex flex-1 flex-wrap items-stretch">
                 <aside
+                    id="menu-del-panel"
                     aria-label={`Menú de ${titulo}`}
-                    className="w-full border-neutral-200 bg-white px-3 pb-5 pt-2 lg:w-60 lg:border-r dark:border-neutral-800 dark:bg-neutral-900"
+                    className={`${menuAbierto ? "block" : "hidden"} w-full border-b border-neutral-200 bg-white px-3 pb-5 pt-2 lg:block lg:w-60 lg:border-b-0 lg:border-r dark:border-neutral-800 dark:bg-neutral-900`}
                 >
                     <nav>
                         {grupos
@@ -178,6 +192,7 @@ export default function PanelLayout({
                                     <Link
                                         key={link.href + link.name}
                                         href={link.href}
+                                        onClick={() => setMenuAbierto(false)}
                                         className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
                                             activo(link.href)
                                                 ? "bg-primary/10 font-medium text-primary dark:bg-primary/20"

@@ -88,8 +88,8 @@ export default function MateriaCard({ materia }: { materia: MateriaItem }) {
                 </p>
             )}
 
-            <dl className="mt-4 space-y-2.5 border-t border-neutral-200 pt-4 text-sm dark:border-neutral-700">
-                <div className="flex items-start gap-2.5">
+            <ul className="mt-4 space-y-2.5 border-t border-neutral-200 pt-4 text-sm dark:border-neutral-700">
+                <li className="flex items-start gap-2.5">
                     {proxima ? (
                         <ExclamationCircleIcon
                             className={`mt-0.5 h-5 w-5 shrink-0 ${proxima.vencida ? "text-red-500" : "text-primary"}`}
@@ -98,10 +98,10 @@ export default function MateriaCard({ materia }: { materia: MateriaItem }) {
                         <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-500" />
                     )}
                     <div className="min-w-0">
-                        <dt className="text-xs text-neutral-500 dark:text-neutral-400">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
                             {proxima?.vencida ? "Entrega vencida" : "Próxima entrega"}
-                        </dt>
-                        <dd className="text-neutral-900 dark:text-neutral-100">
+                        </p>
+                        <div className="text-neutral-900 dark:text-neutral-100">
                             {proxima ? (
                                 <>
                                     <span className="block truncate font-medium">{proxima.titulo}</span>
@@ -118,22 +118,22 @@ export default function MateriaCard({ materia }: { materia: MateriaItem }) {
                             ) : (
                                 <span>Sin entregas pendientes</span>
                             )}
-                        </dd>
+                        </div>
                     </div>
-                </div>
+                </li>
 
                 {materia.materiales !== null && (
-                    <div className="flex items-center gap-2.5">
-                        <FolderOpenIcon className="h-5 w-5 shrink-0 text-neutral-400" />
-                        <dt className="sr-only">Material de estudio</dt>
-                        <dd className="text-neutral-700 dark:text-neutral-300">
+                    <li className="flex items-center gap-2.5">
+                        <FolderOpenIcon className="h-5 w-5 shrink-0 text-neutral-400" aria-hidden="true" />
+                        <span className="sr-only">Material de estudio:</span>
+                        <span className="text-neutral-700 dark:text-neutral-300">
                             {materia.materiales === 0
                                 ? "Sin material de estudio"
                                 : `${materia.materiales} ${materia.materiales === 1 ? "material" : "materiales"} de estudio`}
-                        </dd>
-                    </div>
+                        </span>
+                    </li>
                 )}
-            </dl>
+            </ul>
 
             <span className="mt-auto flex items-center justify-end gap-1 pt-4 text-sm font-semibold text-primary">
                 Ver materia

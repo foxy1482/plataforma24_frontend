@@ -109,7 +109,7 @@ export default function Calendario({ tareas, hoy }: { tareas: TareaItem[]; hoy: 
                                         ? "inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white sm:h-7 sm:w-7 sm:text-sm"
                                         : `text-xs font-semibold sm:text-sm ${
                                               fueraDelMes
-                                                  ? "text-neutral-400 dark:text-neutral-600"
+                                                  ? "text-neutral-500 dark:text-neutral-600"
                                                   : "text-neutral-800 dark:text-neutral-100"
                                           }`
                                 }

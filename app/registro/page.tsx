@@ -66,13 +66,14 @@ export default function RegistroPage() {
     }
 
     return (
-        <div className="flex-1 flex items-center justify-center bg-gray-50/50 dark:bg-gray-950 px-4 py-12 transition-colors duration-300">
+        <main className="flex-1 flex items-center justify-center bg-gray-50/50 dark:bg-gray-950 px-4 py-12 transition-colors duration-300">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4 }}
                 className="w-full max-w-md bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-8 transition-colors duration-300"
             >
+                <h1 className="sr-only">Crear cuenta</h1>
                 <div className="text-center mb-8 flex justify-center">
                     <Image
                         src="/img/escudo_et24.png"
@@ -177,17 +178,17 @@ export default function RegistroPage() {
                     </button>
                 </form>
 
-                <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-6 text-center text-xs text-gray-600 dark:text-gray-400">
                     Te registrás como alumno. Después las autoridades te asignan a tu curso.
                 </p>
 
-                <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400 transition-colors">
-                    ¿Ya tienes una cuenta?{" "}
+                <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                    ¿Ya tenés una cuenta?{" "}
                     <Link href="/login" className="font-medium text-primary hover:text-primary/80 transition-colors">
-                        Inicia sesión
+                        Iniciá sesión
                     </Link>
                 </div>
             </motion.div>
-        </div>
+        </main>
     );
 }

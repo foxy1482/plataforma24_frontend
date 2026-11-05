@@ -217,7 +217,7 @@ export default function BoletinView() {
                         </Chip>
                     </div>
 
-                    <div className="grid gap-px bg-neutral-200 sm:grid-cols-4 dark:bg-neutral-700">
+                    <div className="grid grid-cols-1 gap-px bg-neutral-200 sm:grid-cols-4 dark:bg-neutral-700">
                         {[
                             { label: "Promedio", valor: numero(r.promedio ?? null), color: "" },
                             {
@@ -225,7 +225,7 @@ export default function BoletinView() {
                                 valor: String(r.materiasDesaprobadas),
                                 color:
                                     r.materiasDesaprobadas > 0
-                                        ? "text-amber-600 dark:text-amber-400"
+                                        ? "text-amber-700 dark:text-amber-400"
                                         : "text-teal-600 dark:text-teal-400",
                             },
                             {
@@ -275,9 +275,9 @@ export default function BoletinView() {
                                             <span
                                                 className={`font-libertinus text-xl font-bold ${
                                                     n.nota === null || n.nota === undefined
-                                                        ? "text-neutral-400 dark:text-neutral-600"
+                                                        ? "text-neutral-500 dark:text-neutral-600"
                                                         : n.nota < 6
-                                                          ? "text-amber-600 dark:text-amber-400"
+                                                          ? "text-amber-700 dark:text-amber-400"
                                                           : "text-neutral-900 dark:text-neutral-100"
                                                 }`}
                                             >

@@ -222,7 +222,7 @@ export default function DatosPersonalesForm({
                 </div>
             )}
 
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {campo("nombre", "Nombre", { autoComplete: "off", maxLength: 80, required: true })}
                 {campo("apellido", "Apellido", { autoComplete: "off", maxLength: 80, required: true })}
                 {campo("dni", "DNI", {

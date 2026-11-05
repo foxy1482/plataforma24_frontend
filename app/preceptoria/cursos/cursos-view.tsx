@@ -221,7 +221,7 @@ export default function CursosView() {
                     {datos.cursos.length === 0 ? (
                         <Vacio>Todavía no hay cursos cargados. Creá el primero con “Nuevo curso”.</Vacio>
                     ) : (
-                        <ul className="grid gap-4 sm:grid-cols-2">
+                        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {visibles.map((c) => {
                                 const alumnos = datos.alumnos?.get(c.id);
                                 return (

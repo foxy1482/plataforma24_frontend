@@ -81,12 +81,12 @@ export default function TareasView() {
                     onReintentar={reintentar}
                 />
             ) : !data ? (
-                <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
                     <Bloque className="h-[34rem]" />
                     <Bloque className="h-[34rem]" />
                 </div>
             ) : (
-                <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
                     <div className="order-2 lg:order-1">
                         <Calendario tareas={data.tareas} hoy={data.hoy} />
                     </div>

@@ -587,7 +587,7 @@ export default function TemaForo({ config }: { config: ConfigForo }) {
                         <label htmlFor="respuesta" className={LABEL}>
                             Tu respuesta
                         </label>
-                        <span className="text-xs text-neutral-400">
+                        <span className="text-xs text-neutral-500">
                             {respuesta.length}/{MENSAJE_MAX}
                         </span>
                     </div>
