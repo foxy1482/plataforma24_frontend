@@ -1,26 +1,31 @@
 import * as api from "@/app/lib/apiClient";
-import { nombreCurso } from "@/app/lib/sesion";
+import { cursosDelCicloActual, nombreCurso, ordenarCursos } from "@/app/lib/sesion";
 import type { Curso, ForoMensaje, ForoTema, Usuario } from "@/app/lib/types";
 
 export interface ForoData {
     yo: Usuario;
     temas: ForoTema[];
-    // Nombre corto de cada curso ("5º 6ª") para etiquetar los debates.
     cursos: Record<number, string>;
+    listaCursos: Curso[];
 }
 
-async function nombresDeCursos(): Promise<Record<number, string>> {
-    const lista: Curso[] = (await api.cursos.listar().catch(() => null)) ?? [];
-    return Object.fromEntries(lista.map((c) => [c.id, nombreCurso(c)]));
+async function listarCursos(): Promise<Curso[]> {
+    return ordenarCursos((await api.cursos.listar().catch(() => null)) ?? []);
 }
+
+const nombres = (lista: Curso[]): Record<number, string> =>
+    Object.fromEntries(lista.map((c) => [c.id, nombreCurso(c)]));
 
 export async function cargarForo(): Promise<ForoData> {
-    const [yo, temas, cursos] = await Promise.all([
+    const [yo, temas, todosLosCursos] = await Promise.all([
         api.auth.getProfile(),
         api.foro.temas(),
-        nombresDeCursos(),
+        listarCursos(),
     ]);
-    return { yo, temas: temas ?? [], cursos };
+    // Para elegir/filtrar: los cursos del ciclo vigente, más los de debates ya existentes y el propio (que pueden
+    // ser de un ciclo anterior); `cursos` conserva el nombre de todos para etiquetar cualquier debate.
+    const listaCursos = cursosDelCicloActual(todosLosCursos, [yo.idCurso, ...(temas ?? []).map((t) => t.idCurso)]);
+    return { yo, temas: temas ?? [], cursos: nombres(todosLosCursos), listaCursos };
 }
 
 export interface DebateData {
@@ -32,12 +37,13 @@ export interface DebateData {
 
 // No hay un endpoint para un solo tema: se toma de la lista de los que el usuario puede ver.
 export async function cargarDebate(idTema: number): Promise<DebateData> {
-    const [yo, temas, mensajes, cursos] = await Promise.all([
+    const [yo, temas, mensajes, listaCursos] = await Promise.all([
         api.auth.getProfile(),
         api.foro.temas(),
         api.foro.mensajes(idTema),
-        nombresDeCursos(),
+        listarCursos(),
     ]);
+    const cursos = nombres(listaCursos);
 
     const tema = (temas ?? []).find((t) => t.id === idTema);
     if (!tema) {

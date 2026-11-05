@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
     BookOpenIcon,
+    ChatBubbleOvalLeftEllipsisIcon,
     ClipboardDocumentCheckIcon,
     DocumentPlusIcon,
     FolderIcon,
@@ -55,6 +56,10 @@ export default function DocenteLayout({ children }: { children: React.ReactNode 
                 { name: "Planilla de notas", href: "/docente/notas", icon: TableCellsIcon },
                 { name: "Materiales", href: "/docente/materiales", icon: FolderIcon },
             ],
+        },
+        {
+            titulo: "Comunidad",
+            links: [{ name: "Foro", href: "/docente/foro", icon: ChatBubbleOvalLeftEllipsisIcon }],
         },
     ];
 

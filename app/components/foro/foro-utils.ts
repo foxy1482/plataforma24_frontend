@@ -8,8 +8,20 @@ export const MENSAJE_MAX = 2000;
 export const MOTIVO_MIN = 3;
 export const MOTIVO_MAX = 300;
 
-// Mismo estilo que INPUT pero alto para varias líneas.
 export const TEXTAREA = INPUT.replace("h-11 ", "min-h-28 py-2.5 ");
+
+export interface ConfigForo {
+    base: string;
+    // Personal de la escuela: ve los debates de todos los cursos, elige dónde publicar y modera.
+    personal: boolean;
+    moderacionHref?: string;
+}
+
+// Roles que el backend trata como personal (profesor, autoridad, administradores y preceptor):
+// pueden fijar y cerrar debates y eliminar mensajes ajenos.
+export function esPersonalRol(idRol: number) {
+    return idRol >= 2 && idRol <= 7;
+}
 
 // La API devuelve el nombre de usuario ("tomas.palavecino"): se muestra como nombre propio.
 export function nombreAutor(autor?: string | null) {
@@ -21,7 +33,6 @@ export function nombreAutor(autor?: string | null) {
         .join(" ");
 }
 
-// "hace 5 min", "hace 3 h", "ayer", "hace 4 días"; pasada una semana, la fecha corta.
 export function tiempoRelativo(valor: string | null | undefined, ahora: Date = new Date()) {
     const fecha = parseFecha(valor);
     if (!fecha) return "—";
@@ -56,19 +67,17 @@ export function sugerenciaDeError(error: unknown): string {
             if (typeof sugerencia === "string") return sugerencia;
         }
     } catch {
-        // cuerpo que no es JSON
+        // El cuerpo no es JSON: no hay sugerencia.
     }
     return "";
 }
 
-// Mensaje del servidor (400/409/422) + sugerencia del filtro de palabras, para mostrar en el formulario.
 export function textoDeFallo(error: unknown, alternativo: string) {
     const base = mensajeDeError(error, alternativo);
     const extra = sugerenciaDeError(error);
     return extra && !base.includes(extra) ? `${base} ${extra}` : base;
 }
 
-// Fragmento para citar un mensaje.
 export function resumen(texto: string | undefined, largo = 110) {
     const limpio = (texto ?? "").replace(/\s+/g, " ").trim();
     return limpio.length > largo ? `${limpio.slice(0, largo - 1)}…` : limpio;

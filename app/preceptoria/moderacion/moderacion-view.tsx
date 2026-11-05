@@ -44,7 +44,6 @@ function tonoMotivo(motivo: string | undefined): Tono {
     return "ambar";
 }
 
-// Evalúa el texto contra las palabras activas, igual que lo haría el filtro al publicar.
 function coincidencias(texto: string, lista: Palabra[]) {
     const limpio = normalizar(texto);
     return lista
