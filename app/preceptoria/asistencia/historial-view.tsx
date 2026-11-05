@@ -7,7 +7,7 @@ import { ArrowDownTrayIcon, PrinterIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { alumnosDeCurso } from "@/app/lib/alumnos";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { coma, isoFecha, INASISTENCIAS_PERMITIDAS, parseFecha } from "@/app/lib/format";
+import { coma, isoFecha, INASISTENCIAS_PERMITIDAS, parseFecha, cantidad } from "@/app/lib/format";
 import { estadoPeriodo } from "@/app/lib/periodos";
 import { etiquetaCurso, nombreCurso } from "@/app/lib/sesion";
 import type { EstadoAsistencia } from "@/app/lib/types";
@@ -36,8 +36,8 @@ const LETRA: Record<Celda, string> = {
 };
 
 const CLASE: Record<Celda, string> = {
-    "sin-dato": "bg-neutral-100 text-neutral-400 dark:bg-neutral-700/40 dark:text-neutral-500",
-    presente: "text-neutral-400 dark:text-neutral-600",
+    "sin-dato": "bg-neutral-100 text-neutral-500 dark:bg-neutral-700/40 dark:text-neutral-500",
+    presente: "text-neutral-500 dark:text-neutral-600",
     ausente: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300",
     tarde: "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300",
     justificado: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300",
@@ -329,7 +329,7 @@ export default function HistorialView() {
                 </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Stat
                     label="Presentismo del curso"
                     valor={presentismo === null ? "—" : `${presentismo}%`}
@@ -423,7 +423,7 @@ export default function HistorialView() {
                                         <td className="px-1.5 py-1.5 text-center text-red-600 dark:text-red-400">
                                             {f.ausentes}
                                         </td>
-                                        <td className="px-1.5 py-1.5 text-center text-amber-600 dark:text-amber-400">
+                                        <td className="px-1.5 py-1.5 text-center text-amber-700 dark:text-amber-400">
                                             {f.tardes}
                                         </td>
                                         <td className="px-1.5 py-1.5 text-center text-violet-600 dark:text-violet-400">
@@ -434,7 +434,7 @@ export default function HistorialView() {
                                                 f.anuales !== null && f.anuales >= INASISTENCIAS_PERMITIDAS * 0.7
                                                     ? "text-red-600 dark:text-red-400"
                                                     : f.anuales !== null && f.anuales >= INASISTENCIAS_PERMITIDAS * 0.5
-                                                      ? "text-amber-600 dark:text-amber-400"
+                                                      ? "text-amber-700 dark:text-amber-400"
                                                       : "text-neutral-700 dark:text-neutral-200"
                                             }`}
                                         >
@@ -446,7 +446,7 @@ export default function HistorialView() {
                         </table>
                     </div>
                     <div className="border-t border-neutral-200 p-3 text-xs text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
-                        {filas.length} alumnos · {dias.length} planillas · límite anual{" "}
+                        {cantidad(filas.length, "alumno")} · {cantidad(dias.length, "planilla")} · límite anual{" "}
                         {INASISTENCIAS_PERMITIDAS} inasistencias (llegada tarde = ½ falta)
                     </div>
                 </section>

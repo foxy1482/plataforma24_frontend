@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ExclamationTriangleIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
 import * as api from "@/app/lib/apiClient";
-import { coma, fechaCorta, numero, ordinal } from "@/app/lib/format";
+import { coma, fechaCorta, numero, ordinal, cantidad } from "@/app/lib/format";
 import { listarPeriodos, periodoActual } from "@/app/lib/periodos";
 import type { BoletinResumen, PeriodoApi } from "@/app/lib/types";
 import {
@@ -90,7 +90,7 @@ export default function InicioDocenteView() {
         return (
             <div className="space-y-4">
                 <Cargando className="h-20" />
-                <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                         <Cargando key={i} className="h-24" />
                     ))}
@@ -119,12 +119,13 @@ export default function InicioDocenteView() {
         day: "numeric",
         month: "long",
     }).format(datos.hoy);
+    const tareasSinCorregir = datos.tareas.filter((t) => t.sinCorregir > 0).length;
 
     return (
         <div className="mx-auto max-w-5xl space-y-5">
             <header className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <p className="text-sm capitalize text-neutral-500 dark:text-neutral-400">
+                    <p className="text-sm first-letter:uppercase text-neutral-500 dark:text-neutral-400">
                         {hoyTexto}
                         {extra?.periodo && ` · ${ordinal(extra.periodo.bimestre)} bimestre`}
                     </p>
@@ -138,11 +139,11 @@ export default function InicioDocenteView() {
                 </Link>
             </header>
 
-            <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                 <Stat
                     label="Entregas por corregir"
                     valor={datos.sinCorregir}
-                    sub={`en ${datos.tareas.filter((t) => t.sinCorregir > 0).length} tareas`}
+                    sub={`en ${tareasSinCorregir} tarea${tareasSinCorregir === 1 ? "" : "s"}`}
                 />
                 <Stat
                     label="Tareas activas"
@@ -242,7 +243,7 @@ export default function InicioDocenteView() {
                                         <p className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                                             {b.apellido}, {b.nombre}
                                         </p>
-                                        <p className="text-xs text-amber-600 dark:text-amber-400">
+                                        <p className="text-xs text-amber-700 dark:text-amber-400">
                                             Promedio {numero(b.promedio ?? null)}
                                             {b.materiasDesaprobadas > 0 &&
                                                 ` · ${b.materiasDesaprobadas} desaprobadas`}
@@ -264,7 +265,7 @@ export default function InicioDocenteView() {
                 {datos.materias.length === 0 ? (
                     <SinMaterias />
                 ) : (
-                    <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                         {datos.materias.map((m) => (
                             <Link
                                 key={m.materia.id}
@@ -275,7 +276,7 @@ export default function InicioDocenteView() {
                                     {m.materia.nombre}
                                 </p>
                                 <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                    {m.cursoDetalle} · {m.alumnos.length} alumnos
+                                    {m.cursoDetalle} · {cantidad(m.alumnos.length, "alumno")}
                                 </p>
                                 <div className="mt-3 flex gap-4 text-xs text-neutral-500 dark:text-neutral-400">
                                     <span>
@@ -288,7 +289,7 @@ export default function InicioDocenteView() {
                                         <strong className="text-sm text-neutral-900 dark:text-neutral-100">
                                             {m.activas}
                                         </strong>{" "}
-                                        tareas activas
+                                        {m.activas === 1 ? "tarea activa" : "tareas activas"}
                                     </span>
                                 </div>
                             </Link>

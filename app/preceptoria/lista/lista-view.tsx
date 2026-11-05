@@ -326,7 +326,7 @@ export default function ListaView() {
                         <span className="text-neutral-500 dark:text-neutral-400">ausentes</span>
                     </span>
                     <span>
-                        <strong className="text-xl text-amber-600 dark:text-amber-400">
+                        <strong className="text-xl text-amber-700 dark:text-amber-400">
                             {contar("tarde")}
                         </strong>{" "}
                         <span className="text-neutral-500 dark:text-neutral-400">tarde</span>
@@ -347,7 +347,7 @@ export default function ListaView() {
                         <>
                             <button
                                 onClick={todosPresentes}
-                                disabled={!filas}
+                                disabled={!filas?.length}
                                 className={`${BTN_G} h-10`}
                             >
                                 <CheckIcon className="h-5 w-5" />
@@ -355,14 +355,14 @@ export default function ListaView() {
                             </button>
                             <button
                                 onClick={() => guardar(false)}
-                                disabled={guardando || !filas}
+                                disabled={guardando || !filas?.length}
                                 className={`${BTN_G} h-10`}
                             >
                                 Guardar
                             </button>
                             <button
                                 onClick={() => guardar(true)}
-                                disabled={guardando || !filas}
+                                disabled={guardando || !filas?.length}
                                 className={`${BTN_P} h-10`}
                             >
                                 <LockClosedIcon className="h-5 w-5" />
@@ -398,7 +398,7 @@ export default function ListaView() {
             ) : (
                 <section
                     aria-label={`Alumnos de ${nombreCurso(curso)}`}
-                    className="grid gap-2.5 lg:grid-cols-2"
+                    className="grid grid-cols-1 gap-2.5 lg:grid-cols-2"
                 >
                     {filas.map((f, i) => {
                         const actual = ESTADOS.find((e) => e.valor === f.estado)!;
@@ -408,7 +408,7 @@ export default function ListaView() {
                                 className={`${ROW} p-3 ${f.estado !== "presente" ? actual.clases.split(" ")[0] : ""}`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <span className="w-6 shrink-0 text-right text-xs text-neutral-400">
+                                    <span className="w-6 shrink-0 text-right text-xs text-neutral-500">
                                         {i + 1}
                                     </span>
                                     <div className="min-w-0 flex-1">
@@ -446,7 +446,7 @@ export default function ListaView() {
                                                 className={`h-9 w-9 rounded-lg border text-sm font-bold transition-colors disabled:opacity-50 ${
                                                     f.estado === e.valor
                                                         ? e.clases
-                                                        : "border-neutral-300 text-neutral-400 hover:border-neutral-400 dark:border-neutral-600"
+                                                        : "border-neutral-300 text-neutral-500 hover:border-neutral-400 dark:border-neutral-600"
                                                 }`}
                                             >
                                                 {e.letra}

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { alumnosDeCurso } from "@/app/lib/alumnos";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { normalizar } from "@/app/lib/format";
+import { normalizar, cantidad } from "@/app/lib/format";
 import { etiquetaCurso, nombreCurso } from "@/app/lib/sesion";
 import type { DatosPersonales } from "@/app/lib/types";
 import {
@@ -103,7 +103,7 @@ export default function LegajosView() {
                         Legajos de alumnos
                     </h1>
                     <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                        {nombreCurso(curso)} · {alumnos?.length ?? "…"} alumnos
+                        {nombreCurso(curso)} · {alumnos ? cantidad(alumnos.length, "alumno") : "… alumnos"}
                         {sinDatos > 0 && ` · ${sinDatos} sin datos personales`}
                     </p>
                 </div>

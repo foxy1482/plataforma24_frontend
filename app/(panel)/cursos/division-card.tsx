@@ -34,8 +34,9 @@ export default function DivisionCard({ division }: { division: DivisionItem }) {
                     <span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-400">
                         {[
                             division.turno && `Turno ${division.turno}`,
-                            division.aula,
-                            detalle?.alumnos != null && `${detalle.alumnos} alumnos`,
+                            division.aula && `Aula ${division.aula}`,
+                            detalle?.alumnos != null &&
+                                `${detalle.alumnos} alumno${detalle.alumnos === 1 ? "" : "s"}`,
                         ]
                             .filter(Boolean)
                             .join(" · ")}

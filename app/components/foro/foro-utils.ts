@@ -1,5 +1,5 @@
 import { ApiError, mensajeDeError } from "@/app/lib/apiClient";
-import { fechaCorta, parseFecha } from "@/app/lib/format";
+import { fechaCorta, nombreDeAlias, parseFecha } from "@/app/lib/format";
 import { INPUT, type Tono } from "@/app/components/ui";
 
 export const TITULO_MIN = 5;
@@ -25,12 +25,7 @@ export function esPersonalRol(idRol: number) {
 
 // La API devuelve el nombre de usuario ("tomas.palavecino"): se muestra como nombre propio.
 export function nombreAutor(autor?: string | null) {
-    const base = (autor ?? "").replace(/[._]+/g, " ").trim();
-    if (!base) return "Usuario";
-    return base
-        .split(/\s+/)
-        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-        .join(" ");
+    return nombreDeAlias(autor) || "Usuario";
 }
 
 export function tiempoRelativo(valor: string | null | undefined, ahora: Date = new Date()) {

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowDownTrayIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
-import { notaNumerica, numero, ordinal, parseFecha, promedio } from "@/app/lib/format";
+import { notaNumerica, numero, ordinal, parseFecha, promedio, cantidad } from "@/app/lib/format";
 import { estadoPeriodo, listarPeriodos, periodoActual } from "@/app/lib/periodos";
 import type { BoletinResumen, PeriodoApi } from "@/app/lib/types";
 import {
@@ -347,9 +347,9 @@ export default function PlanillaView() {
                                                 key={i}
                                                 className={`px-2 py-2.5 text-center ${
                                                     n === null
-                                                        ? "text-neutral-400 dark:text-neutral-600"
+                                                        ? "text-neutral-500 dark:text-neutral-600"
                                                         : n < 6
-                                                          ? "font-semibold text-amber-600 dark:text-amber-400"
+                                                          ? "font-semibold text-amber-700 dark:text-amber-400"
                                                           : "text-neutral-600 dark:text-neutral-300"
                                                 }`}
                                             >
@@ -377,7 +377,7 @@ export default function PlanillaView() {
                                                     }}
                                                     className={`${INPUT} h-9 w-16 px-2 text-center ${
                                                         f.nota !== null && f.nota < 6
-                                                            ? "border-amber-400 text-amber-600 dark:text-amber-400"
+                                                            ? "border-amber-400 text-amber-700 dark:text-amber-400"
                                                             : ""
                                                     }`}
                                                 />
@@ -404,7 +404,7 @@ export default function PlanillaView() {
                         </table>
                     </div>
                     <div className="border-t border-neutral-200 p-3.5 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">
-                        {filas.length} alumnos ·{" "}
+                        {cantidad(filas.length, "alumno")} ·{" "}
                         <strong className="text-neutral-900 dark:text-neutral-100">
                             {cargadas} notas cargadas
                         </strong>{" "}

@@ -21,7 +21,7 @@ import {
 import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
 import { fechaNacimientoTexto, sexoTexto } from "@/app/lib/datos-personales";
-import { edadDe } from "@/app/lib/format";
+import { edadDe, nombreDeAlias } from "@/app/lib/format";
 import { AVISO_LEGAJO_NO_RENOVADO, prefijoDeLegajo, prefijoNuevoDeLegajo } from "@/app/lib/legajo";
 import { cursoLargo, cursosDelCicloActual, etiquetaCurso, inicialesDeNombre } from "@/app/lib/sesion";
 import { cargarUsuario, type DetalleUsuario } from "./cargar-usuario";
@@ -98,7 +98,7 @@ export default function UsuarioView({ base }: { base: string }) {
     const { usuario, datos, roles, cursos, yo } = detalle;
     const esYo = usuario.id === yo;
     const alias = usuario.nombreUsuario ?? usuario.nombre ?? usuario.email;
-    const nombre = datos ? `${datos.nombre} ${datos.apellido}` : alias.replace(/[._]+/g, " ");
+    const nombre = datos ? `${datos.nombre} ${datos.apellido}` : nombreDeAlias(alias);
     const nombreRol = (idRol: number) => roles.find((r) => r.id === idRol)?.nombre ?? `Rol ${idRol}`;
     const cursoActual = cursos.find((c) => c.id === usuario.idCurso) ?? null;
     // Solo el ciclo vigente, más el curso que ya tiene (y el elegido) para que el valor seleccionado exista.
@@ -217,7 +217,7 @@ export default function UsuarioView({ base }: { base: string }) {
                     Cuenta
                 </h2>
                 <form onSubmit={guardarCuenta} className="mt-4 space-y-4" noValidate>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label htmlFor={`${prefijo}-rol`} className={LABEL}>
                                 Rol
@@ -359,7 +359,7 @@ export default function UsuarioView({ base }: { base: string }) {
                         />
                     </div>
                 ) : datos ? (
-                    <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                    <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                         {[
                             ["Apellido y nombre", `${datos.apellido}, ${datos.nombre}`],
                             ["DNI", String(datos.dni)],

@@ -2,6 +2,20 @@ export function inicialesDe(nombre?: string, apellido?: string) {
     return `${nombre?.[0] ?? ""}${apellido?.[0] ?? ""}`.toUpperCase();
 }
 
+// "maria.lopez" -> "Maria Lopez": el nombre de usuario es lo único que se puede mostrar cuando no hay datos
+// personales (o no se tiene permiso para leerlos).
+export function nombreDeAlias(alias: string | null | undefined) {
+    return (alias ?? "")
+        .replace(/[._]+/g, " ")
+        .trim()
+        .replace(/(^|\s)(\S)/g, (_, espacio: string, letra: string) => espacio + letra.toUpperCase());
+}
+
+// 1 -> "1 alumno", 3 -> "3 alumnos"
+export function cantidad(n: number, singular: string, plural = `${singular}s`) {
+    return `${n} ${n === 1 ? singular : plural}`;
+}
+
 export function normalizar(texto: string) {
     return texto
         .normalize("NFD")

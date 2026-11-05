@@ -1,5 +1,5 @@
 import * as api from "./apiClient";
-import { normalizar } from "./format";
+import { nombreDeAlias, normalizar } from "./format";
 import type { Curso, Usuario } from "./types";
 
 export type Papel = "alumno" | "docente" | "preceptor" | "directivo" | "otro";
@@ -58,7 +58,7 @@ export async function nombreDe(idUsuario: number, usuario?: Usuario) {
         // Sin datos personales cargados (o sin permiso para leerlos): se usa el alias.
     }
     const alias = usuario?.nombre ?? usuario?.nombreUsuario ?? "";
-    return alias.replace(/[._]+/g, " ").trim() || "Sin nombre";
+    return nombreDeAlias(alias) || "Sin nombre";
 }
 
 export function inicialesDeNombre(nombre: string) {

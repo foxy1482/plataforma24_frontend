@@ -1,6 +1,6 @@
 import * as api from "@/app/lib/apiClient";
 import { seguro } from "@/app/lib/api-utils";
-import { inicialesDe, leer, parseFecha } from "@/app/lib/format";
+import { inicialesDe, leer, nombreDeAlias, parseFecha } from "@/app/lib/format";
 import type { Curso, Entrega } from "@/app/lib/types";
 
 export interface Docente {
@@ -74,7 +74,7 @@ export async function buscarDocente(idProfesor: number): Promise<Docente> {
             const [a, b] = username.split(/[._\s]+/);
             return {
                 id: idProfesor,
-                nombre: `Prof. ${username}`,
+                nombre: `Prof. ${nombreDeAlias(username)}`,
                 iniciales: inicialesDe(a, b) || "?",
                 email,
             };

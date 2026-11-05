@@ -13,7 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
-import { fechaCorta, fechaHora, numero, parseFecha, promedio, notaNumerica } from "@/app/lib/format";
+import { fechaCorta, fechaHora, numero, parseFecha, promedio, notaNumerica, cantidad } from "@/app/lib/format";
 import type { Curso, ForoTema } from "@/app/lib/types";
 import MateriaForm from "@/app/components/materia-form";
 import {
@@ -294,7 +294,7 @@ export default function AulaView() {
                             materia.cursoDetalle,
                             materia.materia.horario,
                             materia.materia.aula ?? materia.curso?.aula,
-                            `${materia.alumnos.length} alumnos`,
+                            cantidad(materia.alumnos.length, "alumno"),
                         ]
                             .filter(Boolean)
                             .join(" · ")}
@@ -361,32 +361,31 @@ export default function AulaView() {
                 </section>
             )}
 
-            <div
-                role="tablist"
-                aria-label="Secciones de la materia"
-                className="flex gap-1 overflow-x-auto border-b border-neutral-200 dark:border-neutral-700"
-            >
-                {(
-                    [
-                        ["tareas", `Tareas (${materia.tareas.length})`],
-                        ["alumnos", `Alumnos (${materia.alumnos.length})`],
-                        ["foro", "Foro del curso"],
-                    ] as [Pestana, string][]
-                ).map(([valor, label]) => (
-                    <button
-                        key={valor}
-                        role="tab"
-                        aria-selected={pestana === valor}
-                        onClick={() => setPestana(valor)}
-                        className={`-mb-px whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
-                            pestana === valor
-                                ? "border-primary text-primary"
-                                : "border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-                        }`}
-                    >
-                        {label}
-                    </button>
-                ))}
+            <div className="flex gap-1 overflow-x-auto border-b border-neutral-200 dark:border-neutral-700">
+                <div role="tablist" aria-label="Secciones de la materia" className="flex gap-1">
+                    {(
+                        [
+                            ["tareas", `Tareas (${materia.tareas.length})`],
+                            ["alumnos", `Alumnos (${materia.alumnos.length})`],
+                            ["foro", "Foro del curso"],
+                        ] as [Pestana, string][]
+                    ).map(([valor, label]) => (
+                        <button
+                            key={valor}
+                            type="button"
+                            role="tab"
+                            aria-selected={pestana === valor}
+                            onClick={() => setPestana(valor)}
+                            className={`-mb-px whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors ${
+                                pestana === valor
+                                    ? "border-primary text-primary"
+                                    : "border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                            }`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
                 <Link
                     href={`/docente/notas?materia=${materia.materia.id}`}
                     className="whitespace-nowrap border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
@@ -504,12 +503,12 @@ export default function AulaView() {
                                                     {a.nombre}
                                                 </td>
                                                 <td
-                                                    className={`px-4 py-2.5 ${a.entregadas < a.total ? "text-amber-600 dark:text-amber-400" : "text-neutral-600 dark:text-neutral-300"}`}
+                                                    className={`px-4 py-2.5 ${a.entregadas < a.total ? "text-amber-700 dark:text-amber-400" : "text-neutral-600 dark:text-neutral-300"}`}
                                                 >
                                                     {a.entregadas} de {a.total}
                                                 </td>
                                                 <td
-                                                    className={`px-4 py-2.5 ${a.promedio !== null && a.promedio < 6 ? "text-amber-600 dark:text-amber-400" : "text-neutral-600 dark:text-neutral-300"}`}
+                                                    className={`px-4 py-2.5 ${a.promedio !== null && a.promedio < 6 ? "text-amber-700 dark:text-amber-400" : "text-neutral-600 dark:text-neutral-300"}`}
                                                 >
                                                     {numero(a.promedio, 1)}
                                                 </td>
@@ -590,7 +589,7 @@ export default function AulaView() {
                                         <span className="truncate text-neutral-900 dark:text-neutral-100">
                                             {a.nombre}
                                         </span>
-                                        <span className="whitespace-nowrap text-amber-600 dark:text-amber-400">
+                                        <span className="whitespace-nowrap text-amber-700 dark:text-amber-400">
                                             {a.entregadas}/{a.total} · {numero(a.promedio, 1)}
                                         </span>
                                     </li>
@@ -602,7 +601,7 @@ export default function AulaView() {
                                 onClick={() => setPestana("alumnos")}
                                 className="mt-3 text-sm text-primary hover:underline"
                             >
-                                Ver los {materia.alumnos.length} alumnos
+                                Ver {cantidad(materia.alumnos.length, "alumno")}
                             </button>
                         )}
                     </section>

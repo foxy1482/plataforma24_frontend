@@ -14,6 +14,7 @@ import {
 import PanelLayout from "@/app/components/panel-layout";
 import { LABEL, ROW } from "@/app/components/ui";
 import { datosDocente } from "./datos";
+import { cantidad } from "@/app/lib/format";
 
 export default function DocenteLayout({ children }: { children: React.ReactNode }) {
     const [resumen, setResumen] = useState<{
@@ -79,8 +80,8 @@ export default function DocenteLayout({ children }: { children: React.ReactNode 
                     {resumen ? (
                         <>
                             <p className="mt-1.5 text-sm text-neutral-700 dark:text-neutral-200">
-                                {resumen.materias} {resumen.materias === 1 ? "materia" : "materias"} ·{" "}
-                                {resumen.alumnos} alumnos
+                                {cantidad(resumen.materias, "materia")} ·{" "}
+                                {cantidad(resumen.alumnos, "alumno")}
                             </p>
                             <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
                                 {resumen.sinCorregir === 0

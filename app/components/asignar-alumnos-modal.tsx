@@ -4,7 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, mensajeDeError, registrarError } from "@/app/lib/apiClient";
-import { normalizar } from "@/app/lib/format";
+import { nombreDeAlias, normalizar } from "@/app/lib/format";
 import { nombreCurso, ROLES_ALUMNO, turnoDe } from "@/app/lib/sesion";
 import type { Curso, Usuario } from "@/app/lib/types";
 import Modal from "@/app/components/modal";
@@ -16,8 +16,7 @@ const MAXIMO = 200;
 // "maria.lopez" -> "Maria Lopez": el nombre de usuario es lo que se puede mostrar sin pedir datos personales
 // de cada alumno (un pedido por persona).
 function nombreVisible(u: Usuario) {
-    const alias = (u.nombreUsuario ?? u.nombre ?? u.email).replace(/[._]+/g, " ").trim();
-    return alias.replace(/(^|\s)(\S)/g, (_, esp: string, letra: string) => esp + letra.toUpperCase());
+    return nombreDeAlias(u.nombreUsuario ?? u.nombre ?? u.email);
 }
 
 export default function AsignarAlumnosModal({
