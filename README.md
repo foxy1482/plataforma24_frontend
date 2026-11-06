@@ -132,7 +132,6 @@ app/
 ├── not-found.tsx, error.tsx
 public/                 Imágenes de la escuela, escudo y fuentes Libertinus
 scripts/                Scripts de instalación
-wireframes/             Maquetas HTML de las pantallas
 data/db.json            Datos de ejemplo del prototipo inicial (no lo usa la app)
 ```
 
