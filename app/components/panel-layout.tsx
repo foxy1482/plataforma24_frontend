@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-    AcademicCapIcon,
     ArrowRightOnRectangleIcon,
     Bars3Icon,
     MagnifyingGlassIcon,
@@ -108,7 +108,7 @@ export default function PanelLayout({
                         {menuAbierto ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
                     </button>
                     <Link href={grupos[0]?.links[0]?.href ?? "/"} className="flex items-center gap-2">
-                        <AcademicCapIcon className="h-7 w-7 text-primary" />
+                        <Image src="/img/escudo_et24.png" alt="Escudo ET N°24" width={243} height={276} className="h-7 w-auto" />
                         <span className="font-libertinus text-xl font-bold text-neutral-900 dark:text-neutral-100">
                             ET N°<span className="text-primary">24</span>
                         </span>

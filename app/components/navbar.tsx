@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { AcademicCapIcon } from "@heroicons/react/24/solid";
+import Image from "next/image";
 import ThemeToggle from "@/app/components/themetoggle";
 
 const RUTAS_PANEL = [
@@ -37,7 +37,7 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     <Link href="/" className="flex items-center gap-2 group">
-                        <AcademicCapIcon className="h-8 w-8 text-primary transition-transform group-hover:scale-105" />
+                        <Image src="/img/escudo_et24.png" alt="Escudo ET N°24" width={243} height={276} className="h-8 w-auto transition-transform group-hover:scale-105" />
                         <span className="font-bold text-xl text-gray-900 dark:text-gray-100 tracking-tight transition-colors">
                             ET N°<span className="text-primary">24</span>
                         </span>

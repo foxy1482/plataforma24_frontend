@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -72,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             
                         <div className="flex items-center gap-8">
                             <Link href="/" className="flex items-center gap-2 group">
-                                <AcademicCapIcon className="h-8 w-8 text-primary transition-transform group-hover:scale-105" />
+                                <Image src="/img/escudo_et24.png" alt="Escudo ET N°24" width={243} height={276} className="h-8 w-auto transition-transform group-hover:scale-105" />
                                 <span className="font-bold text-xl text-neutral-900 dark:text-neutral-100 tracking-tight transition-colors">
                                     ET N°<span className="text-primary">24</span>
                                 </span>
