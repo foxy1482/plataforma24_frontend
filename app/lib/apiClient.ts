@@ -84,9 +84,9 @@ export function registrarError(...detalle: unknown[]): void {
 }
 
 // Mensaje del servidor para los errores que el usuario puede corregir (datos inválidos,
-// duplicados, texto no permitido); para cualquier otro fallo, el texto alternativo.
+// duplicados, texto no permitido, demasiados intentos); para cualquier otro fallo, el texto alternativo.
 export function mensajeDeError(error: unknown, alternativo: string): string {
-    if (error instanceof ApiError && [400, 409, 422].includes(error.status) && error.mensaje) {
+    if (error instanceof ApiError && [400, 409, 413, 422, 429].includes(error.status) && error.mensaje) {
         return error.mensaje;
     }
     return alternativo;
@@ -268,6 +268,14 @@ export const auth = {
 
     getProfile: () => get<Usuario>("/auth/profile/"),
 
+    // 400 si la contraseña actual no coincide (no 401: no cierra la sesión).
+    cambiarPassword: (data: { passwordActual: string; passwordNueva: string }) =>
+        post<null>("/auth/cambiar-password", data),
+
+    // Cuenta blanqueada por un administrador: el login responde 409 y se crea una nueva con email + legajo.
+    crearPassword: (data: { email: string; numeroLegajo: string; passwordNueva: string }) =>
+        post<{ token?: string }>("/auth/crear-password", data),
+
     setToken: (token: string) => {
         sesionCambiada();
         setCookie(TOKEN_COOKIE, token, {
@@ -294,6 +302,8 @@ export const usuarios = {
         data: Partial<Pick<Usuario, "idCurso" | "idRol" | "nombreUsuario" | "email">>
     ) => patch<Usuario>(`/usuarios/${legajo}`, data),
     eliminar: (legajo: number | string) => del<null>(`/usuarios/${legajo}`),
+    // Solo administradores. El usuario crea una contraseña nueva en su próximo ingreso con email + legajo.
+    blanquearPassword: (id: number) => post<null>(`/usuarios/${id}/blanquear-password`),
 };
 
 export const datos = {

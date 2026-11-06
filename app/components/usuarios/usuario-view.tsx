@@ -49,6 +49,7 @@ export default function UsuarioView({ base }: { base: string }) {
     const [okCuenta, setOkCuenta] = useState(false);
     const [editandoDatos, setEditandoDatos] = useState(false);
     const [eliminando, setEliminando] = useState(false);
+    const [blanqueando, setBlanqueando] = useState(false);
 
     const aplicar = useCallback((valor: DetalleUsuario) => {
         setCargado({ id: valor.usuario.id, valor });
@@ -159,6 +160,30 @@ export default function UsuarioView({ base }: { base: string }) {
             );
         } finally {
             setGuardando(false);
+        }
+    };
+
+    const blanquearPassword = async () => {
+        if (
+            !window.confirm(
+                `¿Blanquear la contraseña de ${nombre}? No va a poder iniciar sesión hasta que cree una nueva con su correo y su legajo ${usuario.numeroLegajo}.`
+            )
+        ) {
+            return;
+        }
+        setBlanqueando(true);
+        try {
+            await api.usuarios.blanquearPassword(usuario.id);
+            notificar(`Contraseña blanqueada. Indicale que entre con su correo y el legajo ${usuario.numeroLegajo}.`);
+        } catch (err) {
+            registrarError(err);
+            notificar(
+                err instanceof ApiError && err.status === 403
+                    ? err.mensaje || "Tu usuario no tiene permiso para blanquear esta contraseña."
+                    : mensajeDeError(err, "No se pudo blanquear la contraseña.")
+            );
+        } finally {
+            setBlanqueando(false);
         }
     };
 
@@ -382,6 +407,28 @@ export default function UsuarioView({ base }: { base: string }) {
                         Todavía no hay datos personales cargados para este usuario.
                     </p>
                 )}
+            </section>
+
+            <section className={`${CARD} p-5`} aria-labelledby={`${prefijo}-password`}>
+                <h2
+                    id={`${prefijo}-password`}
+                    className="font-libertinus text-xl font-bold text-neutral-900 dark:text-neutral-100"
+                >
+                    Contraseña
+                </h2>
+                <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+                    {esYo
+                        ? "Tu propia contraseña la cambiás desde Mi perfil."
+                        : `Si la olvidó, blanqueala: en su próximo ingreso va a crear una nueva con su correo y su legajo (${usuario.numeroLegajo}). Hasta entonces no puede iniciar sesión.`}
+                </p>
+                <button
+                    type="button"
+                    onClick={blanquearPassword}
+                    disabled={esYo || blanqueando}
+                    className={`${BTN_G} mt-3`}
+                >
+                    {blanqueando ? "Blanqueando…" : "Blanquear contraseña"}
+                </button>
             </section>
 
             <section

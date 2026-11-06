@@ -8,6 +8,7 @@ import { fechaNacimientoTexto, sexoTexto } from "@/app/lib/datos-personales";
 import { edadDe } from "@/app/lib/format";
 import { cargarSesion, cursoLargo, type Papel, type Sesion } from "@/app/lib/sesion";
 import type { Curso, DatosPersonales } from "@/app/lib/types";
+import CambiarPassword from "@/app/components/cambiar-password";
 import DatosPersonalesForm from "@/app/components/datos-personales-form";
 import { Avatar, BTN_G, BTN_P, CARD, Cargando, Chip, ErrorPanel, LABEL } from "@/app/components/ui";
 
@@ -200,6 +201,8 @@ export default function PerfilView() {
                     ]}
                 />
             </div>
+
+            <CambiarPassword />
         </div>
     );
 }

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { ApiError, auth, registrarError } from "../lib/apiClient";
 import { rutaDeSesion } from "../lib/sesion";
 import { useRedirigirSiHaySesion } from "../lib/usar-sesion-activa";
+import CrearPassword from "./crear-password";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -16,9 +17,18 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    // El backend responde 409 cuando un administrador blanqueó la contraseña: se pide crear una nueva.
+    const [blanqueada, setBlanqueada] = useState(false);
     const isChecking = useRedirigirSiHaySesion();
 
     const router = useRouter();
+
+    const entrar = async (token: string) => {
+        auth.setToken(token);
+        const ruta = await rutaDeSesion();
+        if (ruta === "/login") throw new Error("No se pudo leer el perfil.");
+        router.push(ruta);
+    };
 
     const handleAuth = async () => {
         setError(null);
@@ -26,24 +36,22 @@ export default function LoginPage() {
 
         try {
             const loginResponse = await auth.login({ email, password });
-            
+
             const token = loginResponse.token || loginResponse.access_token;
 
             if (!token) {
                 throw new Error("El servidor no devolvió un token válido.");
             }
 
-            auth.setToken(token);
-
-            const ruta = await rutaDeSesion();
-            if (ruta === "/login") throw new Error("No se pudo leer el perfil.");
-            router.push(ruta);
+            await entrar(token);
         } catch (err: unknown) {
             registrarError("Error de autenticación:", err);
-            if (err instanceof ApiError && err.status === 401) {
-                // El backend distingue "usuario no encontrado" de "contraseña incorrecta":
-                // se muestra un único mensaje para no revelar qué correos existen.
+            if (err instanceof ApiError && err.status === 409) {
+                setBlanqueada(true);
+            } else if (err instanceof ApiError && err.status === 401) {
                 setError("Correo o contraseña incorrectos.");
+            } else if (err instanceof ApiError && err.status === 429) {
+                setError(err.mensaje || "Demasiados intentos. Esperá un minuto y volvé a probar.");
             } else if (err instanceof ApiError && err.status === 0) {
                 setError("No se pudo conectar con el servidor.");
             } else if (err instanceof ApiError && err.status >= 500) {
@@ -88,6 +96,17 @@ export default function LoginPage() {
                   />
                 </div>
 
+                {blanqueada ? (
+                    <CrearPassword
+                        email={email}
+                        onCreada={entrar}
+                        onVolver={() => {
+                            setBlanqueada(false);
+                            setPassword("");
+                        }}
+                    />
+                ) : (
+                <>
                 {error && (
                     <div role="alert" className="mb-4 p-3 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 rounded-xl text-center border border-red-200 dark:border-red-800">
                         {error}
@@ -165,7 +184,13 @@ export default function LoginPage() {
                     <Link href="/registro" className="font-medium text-primary hover:text-primary/80 transition-colors">
                         Registrate
                     </Link>
+                    <p className="mt-2 text-xs">
+                        ¿Olvidaste tu contraseña? Pedile a la oficina de alumnos que la blanquee y creá una nueva
+                        con tu número de legajo.
+                    </p>
                 </div>
+                </>
+                )}
             </motion.div>
         </main>
     );
