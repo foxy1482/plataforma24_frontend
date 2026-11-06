@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckBadgeIcon, PrinterIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, CheckBadgeIcon, PrinterIcon } from "@heroicons/react/24/outline";
 import * as api from "@/app/lib/apiClient";
 import { ApiError, registrarError } from "@/app/lib/apiClient";
 import { coma, INASISTENCIAS_POR_BIMESTRE, numero, ordinal } from "@/app/lib/format";
@@ -312,6 +312,15 @@ export default function BoletinesView() {
                             · {completos.length} completos para publicar · {publicados} publicados
                         </p>
                         <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={generar}
+                                disabled={trabajando}
+                                title="Crea los boletines que falten (por ejemplo, de alumnos agregados después). No modifica los existentes."
+                                className={`${BTN_G} h-9 text-xs`}
+                            >
+                                <ArrowPathIcon className="h-4 w-4" />
+                                {trabajando ? "Generando…" : "Generar faltantes"}
+                            </button>
                             <button onClick={() => window.print()} className={`${BTN_G} h-9 text-xs`}>
                                 <PrinterIcon className="h-4 w-4" />
                                 Imprimir
